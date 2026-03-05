@@ -337,12 +337,3 @@ class CasinoDeckManager:
             return score, hand_name
 
         raise ValueError("Invalid game mode")
-
-
-if __name__ == "__main__":
-    dm = CasinoDeckManager(game_mode="poker")
-    cards = dm.draw(2)
-
-    print(dm.str_cards(cards))
-    print(dm.pretty_cards(cards))
-    print(dm.treys_other(cards))

@@ -4,7 +4,7 @@ from Crypto.Cipher import AES, PKCS1_OAEP
 from Crypto.PublicKey import RSA
 from Crypto.Random import get_random_bytes
 from datetime import datetime
-from gui_helpers_V6 import set_view, get_font_settings
+from gui_helpers_V6 import set_view, fetch_font_settings
 
 
 class Encryption_Software:
@@ -22,7 +22,7 @@ class Encryption_Software:
         self.enc_soft_root = Tk()
         self.enc_soft_root.title("One More Time Casino - Encryption Software")
 
-        self.styles = get_font_settings(self.enc_soft_root)
+        self.styles = fetch_font_settings(self.enc_soft_root)
 
         try:
             from database_management_and_logging_V6 import DatabaseManagement

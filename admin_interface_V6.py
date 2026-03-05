@@ -1,5 +1,5 @@
 from tkinter import Tk, Label, Button, Frame, Entry, messagebox
-from gui_helpers_V6 import set_view, get_font_settings
+from gui_helpers_V6 import set_view, fetch_font_settings
 
 
 class Admin_Interface:
@@ -31,7 +31,7 @@ class Admin_Interface:
         if not self.dbm.check_database_exists():
             self.dbm.create_database()
 
-        self.styles = get_font_settings(self.interface_root)
+        self.styles = fetch_font_settings(self.interface_root)
 
         self.main_frame = Frame(self.interface_root)
         self.main_frame.pack(expand=True, fill="both", padx=20, pady=20)
@@ -47,7 +47,7 @@ class Admin_Interface:
 
     def administrative_check(self, frame):
         """
-        Renders a password entry form for administrator authentication.
+        Renders a password entry form for authentication.
         On a correct password, navigates to the main admin interface.
         On an incorrect password, displays an error and clears the entry field.
 

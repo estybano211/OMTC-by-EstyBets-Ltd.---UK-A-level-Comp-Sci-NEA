@@ -10,14 +10,14 @@ from tkinter import (
     ttk,
     Scrollbar,
 )
-from gui_helpers_V6 import set_view, get_font_settings
+from gui_helpers_V6 import set_view, fetch_font_settings
 
 
 class Admin_Console:
     """
     Provides the administrator console interface, giving access to password
     management, the encryption software, database management, and user
-    management. Protected by a master password for sensitive operations.
+    management. Sensitive operations are protected by a master password.
     """
 
     def __init__(self):
@@ -38,9 +38,9 @@ class Admin_Console:
         self.dbm = DatabaseManagement()
         self.DB_FILE = DB_FILE
 
-        self.MASTER_PASSWORD = "Wassabi"
+        self.MASTER_PASSWORD = "Master_Password"
 
-        self.styles = get_font_settings(self.adm_console_root)
+        self.styles = fetch_font_settings(self.adm_console_root)
 
         self.main_frame = Frame(self.adm_console_root)
         self.main_frame.pack(expand=True, fill="both", padx=20, pady=20)
@@ -460,8 +460,8 @@ class Admin_Console:
                 user_id = user_id_entry.get().strip()
                 username = username_entry.get().strip()
                 if user_id.isdigit():
-                    check_w_user_id = self.dbm.get_username(int(user_id))
-                    check_w_username = self.dbm.get_user_id(username)
+                    check_w_user_id = self.dbm.fetch_username(int(user_id))
+                    check_w_username = self.dbm.fetch_user_id(username)
                     if check_w_user_id["username"] != username or check_w_username[
                         "user_id"
                     ] != int(user_id):
@@ -469,7 +469,7 @@ class Admin_Console:
                             "Error", "User ID and Username do not match."
                         )
                         return
-                    record = self.dbm.get_user_full_record(user_id=int(user_id))
+                    record = self.dbm.fetch_user_full_record(user_id=int(user_id))
                     if not record:
                         messagebox.showinfo("Not Found", "User not found.")
                         return
@@ -481,7 +481,7 @@ class Admin_Console:
             elif user_id_entry.get().strip():
                 user_id = user_id_entry.get().strip()
                 if user_id.isdigit():
-                    record = self.dbm.get_user_full_record(user_id=int(user_id))
+                    record = self.dbm.fetch_user_full_record(user_id=int(user_id))
                     if not record:
                         messagebox.showinfo("Not Found", "User not found.")
                         return
@@ -492,7 +492,7 @@ class Admin_Console:
 
             elif username_entry.get().strip():
                 username = username_entry.get().strip()
-                record = self.dbm.get_user_full_record(username=username)
+                record = self.dbm.fetch_user_full_record(username=username)
                 if not record:
                     messagebox.showinfo("Not Found", "User not found.")
                     return
@@ -527,7 +527,7 @@ class Admin_Console:
         Args:
             frame (Frame): The parent frame to build the view into.
             record (dict): The user record dictionary as returned by
-                           get_user_full_record().
+                           fetch_user_full_record().
         """
         Label(
             frame,
@@ -589,7 +589,7 @@ class Admin_Console:
                 set_view(self, self.show_user_management)
                 return
 
-            if self.dbm.get_user_presence(username).get("found"):
+            if self.dbm.fetch_user_presence(username).get("found"):
                 messagebox.showerror("Error", "Username already exists.")
                 return
 
@@ -715,8 +715,8 @@ class Admin_Console:
                 user_id = user_id_entry.get().strip()
                 username = username_entry.get().strip()
                 if user_id.isdigit():
-                    check_w_user_id = self.dbm.get_username(int(user_id))
-                    check_w_username = self.dbm.get_user_id(username)
+                    check_w_user_id = self.dbm.fetch_username(int(user_id))
+                    check_w_username = self.dbm.fetch_user_id(username)
                     if check_w_user_id["username"] != username or check_w_username[
                         "user_id"
                     ] != int(user_id):
@@ -725,7 +725,7 @@ class Admin_Console:
                         )
                         return
 
-                    record = self.dbm.get_user_full_record(user_id=int(user_id))
+                    record = self.dbm.fetch_user_full_record(user_id=int(user_id))
 
                     if not record:
                         messagebox.showinfo("Not Found", "User not found.")
@@ -740,7 +740,7 @@ class Admin_Console:
             elif user_id_entry.get().strip():
                 user_id = user_id_entry.get().strip()
                 if user_id.isdigit():
-                    record = self.dbm.get_user_full_record(user_id=int(user_id))
+                    record = self.dbm.fetch_user_full_record(user_id=int(user_id))
 
                     if not record:
                         messagebox.showinfo("Not Found", "User not found.")
@@ -757,7 +757,7 @@ class Admin_Console:
                     messagebox.showerror("Error", "No input provided.")
                     return
 
-                record = self.dbm.get_user_full_record(username=username)
+                record = self.dbm.fetch_user_full_record(username=username)
 
                 if not record:
                     messagebox.showinfo("Not Found", "User not found.")
@@ -916,7 +916,7 @@ class Admin_Console:
             username to a user ID and calls delete_user_record.
             """
             username = username_entry.get().strip()
-            if not username or not self.dbm.get_user_presence(username).get("found"):
+            if not username or not self.dbm.fetch_user_presence(username).get("found"):
                 messagebox.showerror("Error", "Username does not exist.")
                 return
 
@@ -927,7 +927,7 @@ class Admin_Console:
                 return
 
             if messagebox.askyesno("Confirm Delete", f"Delete user '{username}'?"):
-                result = self.dbm.get_user_id(username)
+                result = self.dbm.fetch_user_id(username)
                 if result["found"]:
                     self.dbm.delete_user_record(result["user_id"])
 

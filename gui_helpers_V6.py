@@ -2,10 +2,10 @@ from tkinter import Frame
 from tkinter import font
 
 
-def get_font_settings(root):
+def fetch_font_settings(root):
     """
     Creates and returns a dictionary of named tkinter Font objects for consistent
-    styling across the application.
+    styling across the project.
 
     Args:
         root: The root Tk window used to bind the font objects.
@@ -56,7 +56,7 @@ def set_view(self, view_builder):
     """
     Clears the current section frame and builds a new one using the provided
     view builder function. The new frame is packed into the main frame and
-    passed to the view builder for population.
+    passed to the view builder.
 
     Args:
         self: The parent interface object that holds 'main_frame' and

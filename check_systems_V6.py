@@ -3,7 +3,7 @@ import hashlib
 import hmac
 import binascii
 from tkinter import Entry, Label, Button, Frame, Toplevel
-from gui_helpers_V6 import get_font_settings
+from gui_helpers_V6 import fetch_font_settings
 
 PBKDF2_ITERATIONS = 200_000  # Iterations for password hashing. (Password-Based Key Derivation Function 2)
 SALT_BYTES = 16  # Number of random bytes for salt
@@ -89,7 +89,7 @@ def passwords_confirmation(frame, root):
               - 'password' (str or None): The confirmed password string, or
                 None if the dialog was cancelled or passwords did not match.
     """
-    styles = get_font_settings(root)
+    styles = fetch_font_settings(root)
 
     # Default return state
     password = {"confirmed": False, "password": None}

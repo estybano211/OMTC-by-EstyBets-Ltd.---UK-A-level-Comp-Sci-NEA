@@ -1,6 +1,6 @@
 import tkinter as tk
-from tkinter import Label, Button, scrolledtext, Toplevel, Checkbutton
-from gui_helpers_V6 import get_font_settings
+from tkinter import Label, Button, scrolledtext, Toplevel, Checkbutton, IntVar
+from gui_helpers_V6 import fetch_font_settings
 
 
 class ShowGameRules:
@@ -24,7 +24,7 @@ class ShowGameRules:
         """
         self.interface_root = root
 
-        self.styles = get_font_settings(root)
+        self.styles = fetch_font_settings(root)
 
         self.wj_rules = """
         The aim of the game is to beat the dealer by getting higher than the dealer’s hand value.\n
@@ -164,38 +164,18 @@ class ShowGameRules:
         text_area = scrolledtext.ScrolledText(
             window, wrap=tk.WORD, font=self.styles["terms_and_conditions"]
         )
-        text_area.pack(expand=True, fill=tk.BOTH)
+        text_area.pack(expand=True, fill=tk.BOTH, padx=10)
         text_area.insert(tk.END, rules_text)
         text_area.configure(state="disabled")
         text_area.yview_moveto(0)
 
-        # Checkbox to enable Continue button
-        agree_var = tk.IntVar(value=False)
-
-        def on_checkbox_change():
-            """
-            Enables or disables the Continue button based on whether the
-            confirmation checkbox is currently ticked.
-            """
-            if agree_var.get():
-                continue_button.config(state=tk.NORMAL)
-            else:
-                continue_button.config(state=tk.DISABLED)
-
-        check_button = Checkbutton(
-            window,
-            text="I have read and understand the rules.",
-            font=self.styles["button"],
-            variable=agree_var,
-            command=on_checkbox_change,
-        )
-        check_button.pack(pady=5)
-
-        def on_continue():
-            window.destroy()
-            callback()
+        # Bottom controls
+        bottom_frame = tk.Frame(window)
+        bottom_frame.pack(side=tk.BOTTOM, fill=tk.X, pady=10)
 
         continue_button = Button(
-            window, text="Continue", state=tk.DISABLED, command=on_continue
+            bottom_frame,
+            text="Continue",
+            command=lambda: (window.destroy(), callback())
         )
         continue_button.pack(pady=10)

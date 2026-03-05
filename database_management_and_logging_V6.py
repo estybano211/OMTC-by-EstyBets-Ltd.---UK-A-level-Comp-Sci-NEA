@@ -112,7 +112,7 @@ if not database_logger.handlers:
     database_logger.addHandler(db_handler)
 
 
-def get_database_logger():
+def fetch_database_logger():
     """
     Returns the configured database logger instance. This logger writes to the
     'db_logs' table and can be imported by other modules.
@@ -345,7 +345,6 @@ class DatabaseManagement:
         Creates all tables defined in the SCHEMA dictionary if they do not
         already exist. Iterates through each table definition, executes the
         CREATE TABLE statement, then creates the default administrator account.
-        Logs each table creation and the overall database creation event.
         """
         with self.connect() as conn:
             try:
@@ -363,15 +362,15 @@ class DatabaseManagement:
                 database_logger.info("Administrator account added to 'users' table.")
 
             except sqlite3.Error as e:
-                database_logger.exception("'create_database' error.")
+                database_logger.exception(f"'create_database' error. {e}")
 
     def admin_account(self):
         """
         Ensures that a default Administrator account exists in the database.
         Creates the account with a predefined password if it does not already
-        exist. The password should be changed after first use.
+        exist.
         """
-        admin_password = "Goober"
+        admin_password = "Password1"
 
         from check_systems_V6 import hash_function
 
@@ -400,7 +399,7 @@ class DatabaseManagement:
                     database_logger.info("Administrator account created.")
 
             except sqlite3.Error as e:
-                database_logger.exception("'admin_account' error.")
+                database_logger.exception(f"'admin_account' error. {e}")
 
     def admin_logged_in(self):
         """
@@ -422,8 +421,7 @@ class DatabaseManagement:
     def change_admin_password(self, new_password):
         """
         Changes the administrator password to a new hashed value. Hashes the
-        new password before storing it in the database. Logs the request and
-        outcome to both the admin and database loggers.
+        new password before storing it in the database.
 
         Args:
             new_password (str): The new plaintext password to be hashed and
@@ -431,7 +429,7 @@ class DatabaseManagement:
         """
         with self.connect() as conn:
             try:
-                admin_logger.info("Administrator requesting to change Admin Password.")
+                admin_logger.info("Request to change Admin Password.")
 
                 database_logger.info(f"Request to change Administrator password.")
 
@@ -450,18 +448,17 @@ class DatabaseManagement:
 
                 database_logger.info("Administrator password changed.")
 
-                admin_logger.info("Administrator password change request granted.")
+                admin_logger.info("Administrator password change request successful.")
 
             except sqlite3.Error as e:
-                admin_logger.error("Administrator password change request denied.")
+                admin_logger.error("Administrator password change request failed.")
 
-                database_logger.exception("'change_admin_password' error.")
+                database_logger.exception(f"'change_admin_password' error. {e}")
 
     def view_database(self, table):
         """
         Returns a DataFrame of all rows in the requested table for
-        administrator viewing. Logs the request and outcome to both the admin
-        and database loggers.
+        viewing.
 
         Args:
             table (str): The name of the database table to view.
@@ -477,7 +474,7 @@ class DatabaseManagement:
 
         with self.connect() as conn:
             try:
-                admin_logger.info(f"Administrator requesting to view Table: '{table}'")
+                admin_logger.info(f"Request to view Table: '{table}'")
 
                 database_logger.info(f"Attempting to read data from Table: '{table}'.")
 
@@ -485,14 +482,14 @@ class DatabaseManagement:
 
                 database_logger.info(f"Data from Table: '{table}' read successfully.")
 
-                admin_logger.info("View table request granted.")
+                admin_logger.info("View table request successful.")
 
                 return dataframe
 
             except sqlite3.Error as e:
-                admin_logger.error("View table request denied.")
+                admin_logger.error("View table request failed.")
 
-                database_logger.exception("'view_database' error.")
+                database_logger.exception(f"'view_database' error. {e}")
                 return pd.DataFrame()
 
     def change_user_record(
@@ -514,8 +511,8 @@ class DatabaseManagement:
         Args:
             user_id (int): The user ID of the record to modify.
             new_username (str, optional): New username to assign.
-            new_password (str, optional): New plaintext password (will be
-                                          hashed before storage).
+            new_password (str, optional): New plaintext password and will be
+                                          hashed before storage.
             new_account_type (int, optional): New registered status (0 or 1).
             new_balance (float, optional): New balance value.
             terminated (int, optional): Termination flag (0 = active,
@@ -539,49 +536,9 @@ class DatabaseManagement:
         if terminated is not None:
             self.change_user_status(user_id, terminated, reason)
 
-    def change_user_id(self, old_user_id, new_user_id):
-        """
-        Changes a user's ID from old_user_id to new_user_id. Logs the request
-        and outcome to both the admin and database loggers.
-
-        Args:
-            old_user_id (int): The current user ID to change.
-            new_user_id (int): The new user ID to assign.
-        """
-        with self.connect() as conn:
-            try:
-                admin_logger.info(
-                    f"Administrator requesting to change User ID: '{old_user_id}' to '{new_user_id}'."
-                )
-
-                database_logger.info(
-                    f"Request to change User ID: '{old_user_id}' to '{new_user_id}'."
-                )
-
-                conn.execute(
-                    """
-                    UPDATE users
-                    SET user_id = ?
-                    WHERE user_id = ?
-                    """,
-                    (new_user_id, old_user_id),
-                )
-
-                admin_logger.info("Change user ID request granted.")
-
-                database_logger.info(
-                    f"User ID: '{old_user_id}' changed to '{new_user_id}'."
-                )
-
-            except sqlite3.Error as e:
-                admin_logger.error("Change user ID request denied.")
-
-                database_logger.exception("'change_user_id' error.")
-
     def change_user_username(self, user_id, new_username):
         """
-        Changes a user's username to the given value. Logs the request and
-        outcome to both the admin and database loggers.
+        Changes a user's username to the given value.
 
         Args:
             user_id (int): The user ID whose username will be changed.
@@ -589,9 +546,7 @@ class DatabaseManagement:
         """
         with self.connect() as conn:
             try:
-                admin_logger.info(
-                    f"Administrator requesting to change User ID: '{user_id}' username."
-                )
+                admin_logger.info(f"Request to change User ID: '{user_id}' username.")
 
                 database_logger.info(
                     f"Request to change User ID: '{user_id}' username."
@@ -606,20 +561,19 @@ class DatabaseManagement:
                     (new_username, user_id),
                 )
 
-                admin_logger.info("Change user username request granted.")
+                admin_logger.info("Change username request successful.")
 
-                database_logger.info(f"User ID: '{user_id}' username changed.")
+                database_logger.info(f"User username changed.")
 
             except sqlite3.Error as e:
-                admin_logger.error("Change user username request denied.")
+                admin_logger.error("Change username request failed.")
 
-                database_logger.exception("'change_user_username' error.")
+                database_logger.exception(f"'change_user_username' error. {e}")
 
     def change_user_password(self, user_id, new_password):
         """
         Changes a user's password to a new hashed value. Hashes the new
-        password before storing it in the database. Logs the request and
-        outcome to both the admin and database loggers.
+        password before storing it in the database.
 
         Args:
             user_id (int): The user ID whose password will be changed.
@@ -628,9 +582,7 @@ class DatabaseManagement:
         """
         with self.connect() as conn:
             try:
-                admin_logger.info(
-                    f"Administrator requesting to change User: '{user_id}' password."
-                )
+                admin_logger.info(f"Request to change User: '{user_id}' password.")
 
                 database_logger.info(f"Request to change User: '{user_id}' password.")
 
@@ -647,19 +599,18 @@ class DatabaseManagement:
                     (password_hash, user_id),
                 )
 
-                admin_logger.info("Change user password request granted.")
+                admin_logger.info("Change user password request successful.")
 
-                database_logger.info(f"User: '{user_id}' password changed.")
+                database_logger.info(f"User password changed.")
 
             except sqlite3.Error as e:
-                admin_logger.error("Change user password request denied.")
+                admin_logger.error("Change user password request failed.")
 
-                database_logger.exception("'change_user_password' error.")
+                database_logger.exception(f"'change_user_password' error. {e}")
 
     def change_user_account_type(self, user_id, registered):
         """
-        Changes a user's account type (registered status). Logs the request
-        and outcome to both the admin and database loggers.
+        Changes a user's account type (registered status).
 
         Args:
             user_id (int): The user ID whose account type will be changed.
@@ -669,7 +620,7 @@ class DatabaseManagement:
         with self.connect() as conn:
             try:
                 admin_logger.info(
-                    f"Administrator requesting to change User ID: '{user_id}' account type."
+                    f"Request to change User ID: '{user_id}' account type."
                 )
 
                 database_logger.info(
@@ -685,19 +636,18 @@ class DatabaseManagement:
                     (registered, user_id),
                 )
 
-                admin_logger.info("Change user account type request granted.")
+                admin_logger.info("Change user account type request successful.")
 
-                database_logger.info(f"User ID: '{user_id}' account type changed.")
+                database_logger.info(f"User account type changed.")
 
             except sqlite3.Error as e:
-                admin_logger.error("Change user account type request denied.")
+                admin_logger.error("Change user account type request failed.")
 
-                database_logger.exception("'change_user_account_type' error.")
+                database_logger.exception(f"'change_user_account_type' error. {e}")
 
     def change_user_balance(self, user_id, new_balance):
         """
-        Changes a user's account balance to the specified value. Logs the
-        request and outcome to both the admin and database loggers.
+        Changes a user's account balance to the specified value.
 
         Args:
             user_id (int): The user ID whose balance will be changed.
@@ -705,9 +655,7 @@ class DatabaseManagement:
         """
         with self.connect() as conn:
             try:
-                admin_logger.info(
-                    f"Administrator requesting to change User ID: '{user_id}' balance."
-                )
+                admin_logger.info(f"Request to change User ID: '{user_id}' balance.")
 
                 database_logger.info(f"Request to change User ID: '{user_id}' balance.")
 
@@ -720,25 +668,24 @@ class DatabaseManagement:
                     (float(new_balance), user_id),
                 )
 
-                admin_logger.info("Change user balance request granted.")
+                admin_logger.info("Change user balance request successful.")
 
-                database_logger.info(f"User ID: '{user_id}' balance changed.")
+                database_logger.info(f"User balance changed.")
 
             except sqlite3.Error as e:
-                admin_logger.error("Change user balance request denied.")
+                admin_logger.error("Change user balance request failed.")
 
-                database_logger.exception("'change_user_balance' error.")
+                database_logger.exception(f"'change_user_balance' error. {e}")
 
     def change_user_status(self, user_id, terminated, reason=None):
         """
         Changes a user's termination status. If terminated is truthy, sets the
         termination timestamp and reason. If falsy, clears all termination
-        data. Logs the request and outcome to both the admin and database
-        loggers.
+        data.
 
         Args:
             user_id (int): The user ID whose status will be changed.
-            terminated (int): Termination flag (0 for active, 1 for
+            terminated (int): Terminated status (0 for active, 1 for
                               terminated).
             reason (str, optional): Reason for termination. Required when
                                     terminated is 1.
@@ -747,9 +694,7 @@ class DatabaseManagement:
             try:
                 timestamp = datetime.now().strftime("%d-%m-%Y | %H:%M:%S")
 
-                admin_logger.info(
-                    f"Administrator requesting to change User ID: '{user_id}' status."
-                )
+                admin_logger.info(f"Request to change User ID: '{user_id}' status.")
 
                 database_logger.info(f"Request to change User ID: '{user_id}' status.")
 
@@ -772,44 +717,42 @@ class DatabaseManagement:
                         (user_id,),
                     )
 
-                admin_logger.info("Change user status request granted.")
+                admin_logger.info("Change user status request successful.")
 
-                database_logger.info(f"User ID: '{user_id}' status changed.")
+                database_logger.info(f"User status changed.")
 
             except sqlite3.Error as e:
-                admin_logger.error("Change user status request denied.")
+                admin_logger.error("Change user status request failed.")
 
-                database_logger.exception("'change_user_status' error.")
+                database_logger.exception(f"'change_user_status' error. {e}")
 
     def delete_user_record(self, user_id):
         """
         Permanently deletes a user record from the users table by user ID.
-        Logs the request and outcome to both the admin and database loggers.
 
         Args:
             user_id (int): The user ID to delete from the database.
         """
         with self.connect() as conn:
             try:
-                admin_logger.info(
-                    f"Administrator requesting to delete User ID: '{user_id}' record."
-                )
+                admin_logger.info(f"Request to delete User ID: '{user_id}' record.")
 
-                database_logger.info(f"Request to delete User: '{user_id}' record.")
+                database_logger.info(f"Request to delete User ID: '{user_id}' record.")
 
                 conn.execute("DELETE FROM users WHERE user_id=?", (user_id,))
-                admin_logger.info("Delete user record request granted.")
 
-                database_logger.info(f"User ID: '{user_id}' record deleted.")
+                admin_logger.info("Delete user record request successful.")
+
+                database_logger.info(f"User record deleted.")
 
             except sqlite3.Error as e:
-                admin_logger.error("Delete user record request denied.")
+                admin_logger.error("Delete user record request failed.")
 
-                database_logger.exception("'delete_user_record' error.")
+                database_logger.exception(f"'delete_user_record' error. {e}")
 
-    def get_user_full_record(self, *, user_id=None, username=None):
+    def fetch_user_full_record(self, *, user_id=None, username=None):
         """
-        Retrieves the complete user record for a given user_id or username.
+        Fetches the complete user record for a given user_id or username.
         Returns all columns from the users table as a dictionary.
 
         Args:
@@ -840,14 +783,13 @@ class DatabaseManagement:
                 row = cursor.fetchone()
                 return dict(row) if row else None
 
-            except sqlite3.Error:
-                database_logger.exception("'get_user_full_record' error.")
+            except sqlite3.Error as e:
+                database_logger.exception(f"'fetch_user_full_record' error. {e}")
                 return None
 
-    def get_user_presence(self, username=None):
+    def fetch_user_presence(self, username=None):
         """
         Checks whether a user with the given username exists in the database.
-        Logs the search and result to the database logger.
 
         Args:
             username (str, optional): The username to search for.
@@ -880,7 +822,7 @@ class DatabaseManagement:
                 return {"found": found}
 
             except sqlite3.Error as e:
-                database_logger.exception("'get_user_presence' error.")
+                database_logger.exception(f"'fetch_user_presence' error. {e}")
                 return {"found": False}
 
     def sign_in_user(self, username, password, registered):
@@ -945,14 +887,13 @@ class DatabaseManagement:
                 raise
 
             except sqlite3.Error as e:
-                database_logger.exception("'sign_in_user' error. ")
+                database_logger.exception(f"'sign_in_user' error. {e}")
                 raise
 
     def verify_user_password(self, username, password):
         """
         Verifies whether a provided plaintext password matches the stored hash
-        for the given username. Uses constant-time comparison to prevent timing
-        attacks. Logs the verification attempt and result.
+        for the given username.
 
         Args:
             username (str): The username whose password will be verified.
@@ -979,7 +920,7 @@ class DatabaseManagement:
                 row = cursor.fetchone()
 
             except sqlite3.Error as e:
-                database_logger.exception("'verify_user_password' error.")
+                database_logger.exception(f"'verify_user_password' error. {e}")
                 return {"found": False, "verified": False}
 
         if not row or not row["password_hash"]:
@@ -991,18 +932,16 @@ class DatabaseManagement:
         verified = verify_hash(row["password_hash"], password)
 
         if verified:
-            database_logger.info(
-                f"Password verification successful for User: '{username}'."
-            )
+            database_logger.info(f"Password verification successful'.")
         else:
-            database_logger.info(f"Failed password attempt for User: '{username}'.")
+            database_logger.info(f"Failed password attempt.")
 
         return {"found": True, "verified": verified}
 
     def reset_user_password(self, user_id, new_password):
         """
         Resets a user's password to the given value. Hashes the new password
-        before storing it. Logs the request and outcome to the database logger.
+        before storing it.
 
         Args:
             user_id (int): The user ID whose password will be reset.
@@ -1027,17 +966,14 @@ class DatabaseManagement:
                     (password_hash, user_id),
                 )
 
-                database_logger.info(
-                    f"Password for User ID: '{user_id}' reset successfully."
-                )
+                database_logger.info(f"Password for User reset successfully.")
 
             except sqlite3.Error as e:
-                database_logger.exception("'reset_user_password' error.")
+                database_logger.exception(f"'reset_user_password' error. {e}")
 
-    def get_user_id(self, username):
+    def fetch_user_id(self, username):
         """
-        Retrieves the user ID for the given username. Logs the request and
-        result to the database logger.
+        Retrieves the user ID for the given username.
 
         Args:
             username (str): The username to look up.
@@ -1048,7 +984,7 @@ class DatabaseManagement:
         """
         with self.connect() as conn:
             try:
-                database_logger.info(f"Request to get User: '{username}' user_id.")
+                database_logger.info(f"Request to fetch User: '{username}' user_id.")
 
                 cursor = conn.execute(
                     """
@@ -1061,20 +997,19 @@ class DatabaseManagement:
                 row = cursor.fetchone()
 
                 if row:
-                    database_logger.info(f"'user_id' for User: '{username}' found.")
+                    database_logger.info(f"User 'user_id' found.")
                     return {"found": True, "user_id": row["user_id"]}
                 else:
-                    database_logger.info(f"'user_id' for User: '{username}' not found.")
+                    database_logger.info(f"User 'user_id' not found.")
                     return {"found": False, "user_id": None}
 
             except sqlite3.Error as e:
-                database_logger.exception("'get_user_id' error.")
+                database_logger.exception(f"'fetch_user_id' error. {e}")
                 return {"found": False, "user_id": None}
 
-    def get_username(self, user_id):
+    def fetch_username(self, user_id):
         """
-        Retrieves the username for the given user ID. Logs the request and
-        result to the database logger.
+        Retrieves the username for the given user ID.
 
         Args:
             user_id (int): The user ID to look up.
@@ -1085,7 +1020,7 @@ class DatabaseManagement:
         """
         with self.connect() as conn:
             try:
-                database_logger.info(f"Request to get User ID: '{user_id}' username.")
+                database_logger.info(f"Request to fetch User ID: '{user_id}' username.")
 
                 cursor = conn.execute(
                     """
@@ -1098,22 +1033,19 @@ class DatabaseManagement:
                 row = cursor.fetchone()
 
                 if row:
-                    database_logger.info(f"'username' for User ID: '{user_id}' found.")
+                    database_logger.info(f"User 'username' found.")
                     return {"found": True, "username": row["username"]}
                 else:
-                    database_logger.info(
-                        f"'username' for User ID: '{user_id}' not found."
-                    )
+                    database_logger.info(f"User 'username' not found.")
                     return {"found": False, "username": None}
 
             except sqlite3.Error as e:
-                database_logger.exception("'get_username' error.")
+                database_logger.exception(f"'fetch_username' error. {e}")
                 return {"found": False, "username": None}
 
-    def get_user_balance(self, username):
+    def fetch_user_balance(self, username):
         """
-        Retrieves the account balance for the given username. Logs the request
-        and result to the database logger.
+        Retrieves the account balance for the given username.
 
         Args:
             username (str): The username whose balance will be retrieved.
@@ -1125,7 +1057,7 @@ class DatabaseManagement:
         """
         with self.connect() as conn:
             try:
-                database_logger.info(f"Request to get User: '{username}' balance.")
+                database_logger.info(f"Request to fetch User: '{username}' balance.")
 
                 cursor = conn.execute(
                     """
@@ -1138,20 +1070,19 @@ class DatabaseManagement:
                 row = cursor.fetchone()
 
                 if row:
-                    database_logger.info(f"'balance' for User: '{username}' found.")
+                    database_logger.info(f"User 'balance' found.")
                     return {"found": True, "balance": float(row["balance"])}
                 else:
-                    database_logger.info(f"'balance' for User: '{username}' not found.")
+                    database_logger.info(f"User 'balance' not found.")
                     return {"found": False, "balance": 0.0}
 
             except sqlite3.Error as e:
-                database_logger.exception("'get_user_balance' error.")
+                database_logger.exception(f"'fetch_user_balance' error. {e}")
                 return {"found": False, "balance": 0.0}
 
     def modify_user_balance(self, username, new_balance):
         """
-        Updates a user's account balance to the specified value. Logs the
-        request and outcome to the database logger.
+        Updates a user's account balance to the specified value.
 
         Args:
             username (str): The username whose balance will be modified.
@@ -1170,17 +1101,16 @@ class DatabaseManagement:
                     (float(new_balance), username),
                 )
 
-                database_logger.info(f"Balance for User: {username} modified.")
+                database_logger.info(f"User balance modified.")
                 return
 
             except sqlite3.Error as e:
-                database_logger.exception("'modify_user_balance' error.")
+                database_logger.exception(f"'modify_user_balance' error. {e}")
 
     def terminate_user_account(self, username, reason):
         """
         Marks a user's account as terminated, recording the current timestamp
-        and the reason for termination. Logs the request and outcome to the
-        database logger.
+        and the reason for termination.
 
         Args:
             username (str): The username whose account will be terminated.
@@ -1203,16 +1133,16 @@ class DatabaseManagement:
                     (timestamp, reason, username),
                 )
 
-                database_logger.info(f"User: '{username}' account terminated.")
+                database_logger.info(f"User account terminated.")
                 return
 
             except sqlite3.Error as e:
-                database_logger.exception("'terminate_user_account' error.")
+                database_logger.exception(f"'terminate_user_account' error. {e}")
 
     def admin_password_check(self, password):
         """
         Verifies a provided password against the stored administrator password
-        hash. Logs the verification attempt and result to the database logger.
+        hash.
 
         Args:
             password (str): The plaintext password to verify.
@@ -1236,7 +1166,7 @@ class DatabaseManagement:
                 row = cursor.fetchone()
 
             except sqlite3.Error as e:
-                database_logger.exception("'admin_password_check' error.")
+                database_logger.exception(f"'admin_password_check' error. {e}")
                 return {"found": False, "verified": False}
 
         if not row or not row["password_hash"]:
@@ -1248,46 +1178,9 @@ class DatabaseManagement:
         verified = verify_hash(row["password_hash"], password)
 
         if verified:
-            database_logger.info("Password verification successful for Administrator.")
+            database_logger.info("Administrator password verification successful.")
         else:
-            database_logger.info("Failed password attempt from Administrator.")
-
-        return {"found": True, "verified": verified}
-
-    def user_password_check(self, username, password):
-        """
-        Compatibility wrapper around :func:`verify_user_password`.
-        Historically this method only checked unregistered (guest) accounts,
-        which caused login failures for normal registered users.  It now
-        delegates to the general verification routine so behaviour is consistent
-        regardless of registration state.
-
-        Args:
-            username (str): The username whose password will be verified.
-            password (str): The plaintext password to verify.
-
-        Returns:
-            dict: Dictionary with 'found' (bool) and 'verified' (bool) keys.
-        """
-
-        return self.verify_user_password(username, password)
-
-        if not row or not row["password_hash"]:
-            database_logger.info(
-                f"User: {username} not found or password_hash missing."
-            )
-            return {"found": False, "verified": False}
-
-        from check_systems_V6 import verify_hash
-
-        verified = verify_hash(row["password_hash"], password)
-
-        if verified:
-            database_logger.info(
-                f"Password verification successful for user: {username}"
-            )
-        else:
-            database_logger.info(f"Failed password attempt for user: {username}")
+            database_logger.info("Administrator password verification failed.")
 
         return {"found": True, "verified": verified}
 
@@ -1303,26 +1196,32 @@ class DatabaseManagement:
         """
         with self.connect() as conn:
             try:
+                database_logger.info(
+                    f"Checking if poker data exists for User ID: '{user_id}'."
+                )
+
                 exists = conn.execute(
                     """
                     SELECT 1 FROM user_poker_data WHERE user_id = ?
-                """,
+                    """,
                     (user_id,),
                 ).fetchone()
+
+                database_logger.info(
+                    f"Poker data existence for User: {'found' if exists else 'not found'}."
+                )
 
                 return exists is not None
 
             except sqlite3.Error as e:
-                database_logger.exception(
-                    f"Error checking poker data for user {user_id}: {e}"
-                )
+                database_logger.exception(f"'check_user_poker_data_exists' error. {e}")
                 return False
 
     def initialise_user_poker_data(self, user_id):
         """
         Creates a new poker data record for the given user with default values
-        and a freshly generated base range chart. If a record already exists,
-        no changes are made. Logs the outcome to the database logger.
+        and a new base range chart. If a record already exists then no changes
+        are made.
 
         Args:
             user_id (int): The user ID to initialise poker data for.
@@ -1333,22 +1232,26 @@ class DatabaseManagement:
         """
         with self.connect() as conn:
             try:
+                database_logger.info(
+                    f"Initialising poker data for User ID: '{user_id}'."
+                )
+
                 exists = conn.execute(
                     """
                     SELECT 1 FROM user_poker_data WHERE user_id = ?
-                """,
+                    """,
                     (user_id,),
                 ).fetchone()
 
                 if exists:
-                    database_logger.info(f"User {user_id} poker data already exists")
+                    database_logger.info(f"User poker data already exists")
                     return True
 
                 conn.execute(
                     """
                     INSERT INTO user_poker_data (user_id)
                     VALUES (?)
-                """,
+                    """,
                     (user_id,),
                 )
 
@@ -1360,23 +1263,20 @@ class DatabaseManagement:
                     UPDATE user_poker_data
                     SET player_range = ?
                     WHERE user_id = ?
-                """,
+                    """,
                     (json.dumps(generate_range_chart()), user_id),
                 )
 
-                database_logger.info(f"Initialized poker data for user {user_id}")
+                database_logger.info(f"User poker data initialised.")
                 return True
 
             except sqlite3.Error as e:
-                database_logger.exception(
-                    f"Error initializing poker data for user {user_id}: {e}"
-                )
+                database_logger.exception(f"'initialise_user_poker_data' error. {e}")
                 return False
 
     def load_user_poker_data(self, user_id):
         """
-        Loads the complete poker data record for a user. This is the primary
-        method used during PokerPlayer initialisation. Retrieves all stored
+        Loads the complete poker data record for a user.  Retrieves all stored
         statistics, calculates derived values (avg_bet_size), and normalises
         fold_to_raise and call_when_weak to a 0.0–1.0 range.
 
@@ -1391,6 +1291,8 @@ class DatabaseManagement:
         """
         with self.connect() as conn:
             try:
+                database_logger.info(f"Loading poker data for User ID: '{user_id}'.")
+
                 # Get user data with poker stats
                 row = conn.execute(
                     """
@@ -1408,12 +1310,12 @@ class DatabaseManagement:
                         upd.last_updated
                     FROM user_poker_data upd
                     WHERE upd.user_id = ?
-                """,
+                    """,
                     (user_id,),
                 ).fetchone()
 
                 if not row:
-                    database_logger.warning(f"User {user_id} not found in poker data")
+                    database_logger.warning(f"User not found in poker data")
                     return None
 
                 # Convert to dictionary
@@ -1447,17 +1349,17 @@ class DatabaseManagement:
                     record["fold_to_raise"] = 0.5
                     record["call_when_weak"] = 0.5
 
+                database_logger.info(
+                    f"Poker data for User ID: '{user_id}' loaded successfully."
+                )
+
                 return record
 
             except sqlite3.Error as e:
-                database_logger.exception(
-                    f"Error loading poker data for user {user_id}: {e}"
-                )
+                database_logger.exception(f"'load_user_poker_data' error. {e}")
                 return None
             except json.JSONDecodeError as e:
-                database_logger.exception(
-                    f"Error parsing player_range JSON for user {user_id}: {e}"
-                )
+                database_logger.exception(f"'load_user_poker_data' error. {e}")
                 return None
 
     def update_player_range(self, user_id, player_range):
@@ -1474,6 +1376,8 @@ class DatabaseManagement:
         """
         with self.connect() as conn:
             try:
+                database_logger.info(f"Updating player range for User ID: '{user_id}'.")
+
                 range_json = json.dumps(player_range)
 
                 conn.execute(
@@ -1483,23 +1387,23 @@ class DatabaseManagement:
                         player_range = ?,
                         last_updated = CURRENT_TIMESTAMP
                     WHERE user_id = ?
-                """,
+                    """,
                     (range_json, user_id),
                 )
+
+                database_logger.info(f"User player range updated.")
 
                 return True
 
             except (sqlite3.Error, json.JSONDecodeError) as e:
-                database_logger.exception(
-                    f"Error updating player range for user {user_id}: {e}"
-                )
+                database_logger.exception(f"'update_player_range' error. {e}")
                 return False
 
     def log_player_action(
         self, *, user_id, round_number, street, action, bet_size, pot_size
     ):
         """
-        Logs a single player action to the user_poker_actions table.
+        Logs a player action to the user_poker_actions table.
 
         Args:
             user_id (int): The user ID performing the action.
@@ -1515,6 +1419,8 @@ class DatabaseManagement:
         """
         with self.connect() as conn:
             try:
+                database_logger.info(f"Logging action for User ID: '{user_id}'.")
+
                 conn.execute(
                     """
                     INSERT INTO user_poker_actions(
@@ -1526,7 +1432,7 @@ class DatabaseManagement:
                         pot_size
                     )
                     VALUES (?, ?, ?, ?, ?, ?)
-                """,
+                    """,
                     (
                         user_id,
                         round_number,
@@ -1536,18 +1442,19 @@ class DatabaseManagement:
                         pot_size,
                     ),
                 )
+
+                database_logger.info(f"Action logged for User.")
+
                 return True
 
             except sqlite3.Error as e:
-                database_logger.exception(
-                    f"Error logging action for user {user_id}: {e}"
-                )
+                database_logger.exception(f"'log_player_action' error. {e}")
                 return False
 
-    def get_unresolved_player_actions(self, user_id):
+    def fetch_unresolved_player_actions(self, user_id):
         """
         Retrieves all unresolved actions for a user, ordered by round number
-        and creation time. Intended for use in crash recovery scenarios.
+        and creation time.
 
         Args:
             user_id (int): The user ID to retrieve unresolved actions for.
@@ -1557,6 +1464,10 @@ class DatabaseManagement:
         """
         with self.connect() as conn:
             try:
+                database_logger.info(
+                    f"Fetching unresolved actions for User ID: '{user_id}'."
+                )
+
                 rows = conn.execute(
                     """
                     SELECT
@@ -1572,19 +1483,23 @@ class DatabaseManagement:
                     WHERE user_id = ?
                     AND resolved = 0
                     ORDER BY round_number ASC, created_at ASC
-                """,
+                    """,
                     (user_id,),
                 ).fetchall()
+
+                database_logger.info(
+                    f"Fetched {len(rows)} unresolved actions for User."
+                )
 
                 return [dict(r) for r in rows]
 
             except sqlite3.Error as e:
                 database_logger.exception(
-                    f"Error getting unresolved actions for user {user_id}: {e}"
+                    f"'fetch_unresolved_player_actions' error. {e}"
                 )
                 return []
 
-    def resolve_player_actions(self, user_id: int, round_number: int) -> bool:
+    def resolve_player_actions(self, user_id, round_number):
         """
         Marks all actions for a specific round as resolved by setting the
         resolved flag to 1.
@@ -1598,22 +1513,24 @@ class DatabaseManagement:
         """
         with self.connect() as conn:
             try:
+                database_logger.info(f"Resolving actions for User ID: '{user_id}'.")
+
                 conn.execute(
                     """
                     UPDATE user_poker_actions
                     SET resolved = 1
                     WHERE user_id = ?
                     AND round_number = ?
-                """,
+                    """,
                     (user_id, round_number),
                 )
+
+                database_logger.info(f"User actions resolved.")
 
                 return True
 
             except sqlite3.Error as e:
-                database_logger.exception(
-                    f"Error resolving actions for user {user_id}, round {round_number}: {e}"
-                )
+                database_logger.exception(f"'resolve_player_actions' error. {e}")
                 return False
 
     def update_hand_statistics(
@@ -1629,7 +1546,7 @@ class DatabaseManagement:
     ):
         """
         Updates all aggregate poker statistics for a user after a hand
-        completes.  Increments counters and recalculates VPIP/PFR.
+        completes. Increments counters and recalculates VPIP/PFR.
 
         Args:
             user_id (int): The user ID to update.
@@ -1648,6 +1565,10 @@ class DatabaseManagement:
         """
         with self.connect() as conn:
             try:
+                database_logger.info(
+                    f"Updating hand statistics for User ID: '{user_id}'."
+                )
+
                 conn.execute(
                     """
                     UPDATE user_poker_data
@@ -1660,7 +1581,7 @@ class DatabaseManagement:
                         call_when_weak = call_when_weak + ?,
                         last_updated = CURRENT_TIMESTAMP
                     WHERE user_id = ?
-                """,
+                    """,
                     (
                         int(voluntarily_entered),  # VPIP counter
                         int(preflop_raised),  # PFR counter
@@ -1674,25 +1595,26 @@ class DatabaseManagement:
                 # Recalculate VPIP and PFR percentages
                 self.recalculate_frequencies(conn, user_id)
 
+                database_logger.info(f"User hand statistics updated.")
+
                 return True
 
             except sqlite3.Error as e:
-                database_logger.exception(
-                    f"Error updating hand statistics for user {user_id}: {e}"
-                )
+                database_logger.exception(f"'update_hand_statistics' error. {e}")
                 return False
 
     def recalculate_frequencies(self, conn: sqlite3.Connection, user_id: int):
         """
         Recalculates and updates VPIP and PFR percentage values based on the
-        current aggregate counters. Intended to be called internally after
-        updating hand statistics.
+        current aggregate counters.
 
         Args:
             conn (sqlite3.Connection): An active database connection to use.
             user_id (int): The user ID whose frequencies will be recalculated.
         """
         try:
+            database_logger.info(f"Recalculating frequencies for User ID: '{user_id}'.")
+
             row = conn.execute(
                 """
                 SELECT
@@ -1701,7 +1623,7 @@ class DatabaseManagement:
                     total_hands_raised
                 FROM user_poker_data
                 WHERE user_id = ?
-            """,
+                """,
                 (user_id,),
             ).fetchone()
 
@@ -1717,19 +1639,18 @@ class DatabaseManagement:
                 UPDATE user_poker_data
                 SET vpip = ?, pfr = ?
                 WHERE user_id = ?
-            """,
+                """,
                 (vpip, pfr, user_id),
             )
 
-        except sqlite3.Error as e:
-            database_logger.exception(
-                f"Error recalculating frequencies for user {user_id}: {e}"
-            )
+            database_logger.info(f"User frequencies recalculated.")
 
-    def get_player_statistics(self, user_id):
+        except sqlite3.Error as e:
+            database_logger.exception(f"'recalculate_frequencies' error. {e}")
+
+    def fetch_player_statistics(self, user_id):
         """
-        Retrieves summary poker statistics for a player, including derived
-        statistics such as average bet size.
+        Retrieves a summary poker statistics for a player.
 
         Args:
             user_id (int): The user ID to retrieve statistics for.
@@ -1740,6 +1661,10 @@ class DatabaseManagement:
         """
         with self.connect() as conn:
             try:
+                database_logger.info(
+                    f"Fetching player statistics for User ID: '{user_id}'."
+                )
+
                 row = conn.execute(
                     """
                     SELECT
@@ -1765,18 +1690,17 @@ class DatabaseManagement:
                 rounds = max(1, stats["rounds_played"])
                 stats["avg_bet_size"] = stats["total_bets"] / rounds
 
+                database_logger.info(f"User player statistics fetched.")
+
                 return stats
 
             except sqlite3.Error as e:
-                database_logger.exception(
-                    f"Error getting statistics for user {user_id}: {e}"
-                )
+                database_logger.exception(f"'fetch_player_statistics' error. {e}")
                 return None
 
-    def get_hand_history(self, user_id, limit=50, resolved_only=True):
+    def fetch_hand_history(self, user_id, limit=50, resolved_only=True):
         """
-        Retrieves recent hand action history for a player, optionally filtered
-        to only resolved actions, ordered by most recent first.
+        Retrieves recent hand action history for a player, ordered by most recent first.
 
         Args:
             user_id (int): The user ID to retrieve history for.
@@ -1789,6 +1713,8 @@ class DatabaseManagement:
         """
         with self.connect() as conn:
             try:
+                database_logger.info(f"Fetching hand history for User ID: '{user_id}'.")
+
                 query = """
                     SELECT
                         round_number,
@@ -1800,7 +1726,7 @@ class DatabaseManagement:
                         created_at
                     FROM user_poker_actions
                     WHERE user_id = ?
-                """
+                    """
 
                 if resolved_only:
                     query += " AND resolved = 1"
@@ -1809,19 +1735,20 @@ class DatabaseManagement:
 
                 rows = conn.execute(query, (user_id, limit)).fetchall()
 
+                database_logger.info(
+                    f"Fetched {len(rows)} hand history records for User."
+                )
+
                 return [dict(r) for r in rows]
 
             except sqlite3.Error as e:
-                database_logger.exception(
-                    f"Error getting hand history for user {user_id}: {e}"
-                )
+                database_logger.exception(f"'fetch_hand_history' error. {e}")
                 return []
 
-    def get_all_players_data(self):
+    def fetch_all_players_data(self):
         """
         Retrieves poker data for all players who have played at least one
-        round. Useful for leaderboards and analytics. Calculates derived
-        statistics (avg_bet_size) for each player.
+        round.
 
         Returns:
             list: A list of player data dictionaries ordered by rounds played
@@ -1829,6 +1756,8 @@ class DatabaseManagement:
         """
         with self.connect() as conn:
             try:
+                database_logger.info("Fetching poker data for all players.")
+
                 rows = conn.execute("""
                     SELECT
                         user_id,
@@ -1839,7 +1768,7 @@ class DatabaseManagement:
                     FROM user_poker_data
                     WHERE rounds_played > 0
                     ORDER BY rounds_played DESC
-                """).fetchall()
+                    """).fetchall()
 
                 players = []
                 for row in rows:
@@ -1848,16 +1777,17 @@ class DatabaseManagement:
                     player["avg_bet_size"] = player["total_bets"] / rounds
                     players.append(player)
 
+                database_logger.info(f"Fetched data for {len(players)} players.")
+
                 return players
 
             except sqlite3.Error as e:
-                database_logger.exception(f"Error getting all players data: {e}")
+                database_logger.exception(f"'fetch_all_players_data' error. {e}")
                 return []
 
     def reset_player_statistics(self, user_id, keep_range=True):
         """
-        Resets all poker statistics for a player to zero. Optionally preserves
-        the player's stored range chart. Logs the reset to the database logger.
+        Resets all poker statistics for a player to zero.
 
         Args:
             user_id (int): The user ID to reset.
@@ -1869,6 +1799,10 @@ class DatabaseManagement:
         """
         with self.connect() as conn:
             try:
+                database_logger.info(
+                    f"Resetting player statistics for User ID: '{user_id}'. Keep range: {keep_range}"
+                )
+
                 if keep_range:
                     conn.execute(
                         """
@@ -1884,7 +1818,7 @@ class DatabaseManagement:
                             call_when_weak = 0,
                             last_updated = CURRENT_TIMESTAMP
                         WHERE user_id = ?
-                    """,
+                        """,
                         (user_id,),
                     )
                 else:
@@ -1903,20 +1837,18 @@ class DatabaseManagement:
                             call_when_weak = 0,
                             last_updated = CURRENT_TIMESTAMP
                         WHERE user_id = ?
-                    """,
+                        """,
                         (user_id,),
                     )
 
-                database_logger.info(f"Reset statistics for user {user_id}")
+                database_logger.info(f"User statistics reset.")
                 return True
 
             except sqlite3.Error as e:
-                database_logger.exception(
-                    f"Error resetting statistics for user {user_id}: {e}"
-                )
+                database_logger.exception(f"'reset_player_statistics' error. {e}")
                 return False
 
-    def get_special_mode_scores(self, user_id):
+    def fetch_special_mode_scores(self, user_id):
         """
         Retrieves the Gauntlet and Endless personal-best scores for a user.
 
@@ -1924,12 +1856,16 @@ class DatabaseManagement:
             user_id (int): The user ID to query.
 
         Returns:
-            dict: Dictionary with keys ``gauntlet_max_rounds`` (int) and
-                ``endless_high_score`` (int), or None if the user is not
+            dict: Dictionary with keys 'gauntlet_max_rounds' (int) and
+                'endless_high_score' (int), or None if the user is not
                 found or an error occurs.
         """
         with self.connect() as conn:
             try:
+                database_logger.info(
+                    f"Fetching special-mode scores for User ID: '{user_id}'."
+                )
+
                 row = conn.execute(
                     """
                     SELECT gauntlet_max_rounds, endless_high_score
@@ -1945,34 +1881,34 @@ class DatabaseManagement:
                     )
                     return None
 
+                database_logger.info(f"User special-mode scores fetched.")
+
                 return {
                     "gauntlet_max_rounds": int(row["gauntlet_max_rounds"] or 0),
                     "endless_high_score": int(row["endless_high_score"] or 0),
                 }
 
-            except sqlite3.Error:
-                database_logger.exception(
-                    f"'get_special_mode_scores' error for user_id {user_id}."
-                )
+            except sqlite3.Error as e:
+                database_logger.exception(f"'fetch_special_mode_scores' error. {e}")
                 return None
 
     def update_special_mode_score(self, user_id, column, new_score):
         """
-        Updates a special-mode personal best only if ``new_score`` exceeds
-        the currently stored value.  Uses a conditional UPDATE so the record
+        Updates a special-mode personal best only if 'new_score' exceeds
+        the currently stored value. Uses a conditional UPDATE so the record
         is never downgraded (e.g. after a short run following a long one).
 
         Args:
             user_id  (int): The user ID to update.
-            column   (str): Either ``"gauntlet_max_rounds"`` or
-                            ``"endless_high_score"``.
+            column   (str): Either 'gauntlet_max_rounds' or
+                            'endless_high_score'.
             new_score (int): The candidate new personal best.
 
         Returns:
             bool: True if the update executed without error, False otherwise.
 
         Raises:
-            ValueError: If ``column`` is not one of the two allowed values.
+            ValueError: If 'column' is not one of the two allowed values.
         """
         allowed = {"gauntlet_max_rounds", "endless_high_score"}
         if column not in allowed:
@@ -1984,25 +1920,27 @@ class DatabaseManagement:
                     f"""
                     UPDATE user_poker_data
                     SET {column} = ?,
-                        last_updated = CURRENT_TIMESTAMP
-                    WHERE  user_id      = ?
-                    AND    {column}     < ?
+                    last_updated = CURRENT_TIMESTAMP
+                    WHERE user_id = ?
+                    AND {column} < ?
                     """,
                     (new_score, user_id, new_score),
                 )
-                database_logger.info(
-                    f"Updated {column} to {new_score} for user_id {user_id} "
-                    f"(only applied if new_score > existing value)."
-                )
+                database_logger.info(f"Updated {column} to {new_score}")
                 return True
 
-            except sqlite3.Error:
-                database_logger.exception(
-                    f"'update_special_mode_score' error for user_id {user_id}."
-                )
+            except sqlite3.Error as e:
+                database_logger.exception(f"'update_special_mode_score' error. {e}")
                 return False
 
 
 if __name__ == "__main__":
+    """
+    Initialises the database by creating an instance of DatabaseManagement and
+    calling create_database(). This can be run independently to set up the database
+    schema and initial administrator account, or will be automatically invoked
+    when the User_Interface is run if the database does not already exist.
+    """
+
     dbm = DatabaseManagement()
     dbm.create_database()

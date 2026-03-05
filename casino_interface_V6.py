@@ -13,7 +13,7 @@ from tkinter import (
     HORIZONTAL,
 )
 from tkinter.ttk import Combobox
-from gui_helpers_V6 import set_view, get_font_settings
+from gui_helpers_V6 import set_view, fetch_font_settings
 
 # Minimum rounds played before a user may enable Tournament Mode.
 # At 25 rounds the VPIP/PFR counters carry statistical weight and the
@@ -72,14 +72,13 @@ class Casino_Interface:
     """
     Main casino interface for users and administrators. Handles login,
     account management, game selection, and mode-specific rules such as
-    tournament, gauntlet and endless play. The administrator flag alters
-    prompts and bypasses user gating where necessary.
+    tournament, gauntlet and endless play.
     """
 
     def __init__(self, administrator):
         """
         Initialises the Casino Interface window, sets up the database manager,
-        font styles, and user data state.  If launched in administrator mode,
+        font styles, and user data state. If launched in administrator mode,
         pre-populates user data and marks the session as signed in before
         starting the main menu.
 
@@ -89,7 +88,7 @@ class Casino_Interface:
         """
         self.interface_root = Tk()
         self.interface_root.title(
-            "One More Time Casino — Administrator Interface"
+            "One More Time Casino — Administrator Access"
             if administrator
             else "One More Time Casino"
         )
@@ -98,7 +97,7 @@ class Casino_Interface:
 
         self.dbm = DatabaseManagement()
 
-        self.styles = get_font_settings(self.interface_root)
+        self.styles = fetch_font_settings(self.interface_root)
         self.signed_in = False
 
         self.user_data = {
@@ -136,10 +135,10 @@ class Casino_Interface:
         """
         return bool(self.user_data.get("username"))
 
-    def get_rounds_played(self):
+    def fetch_rounds_played(self):
         """
         Retrieves the number of poker rounds the current user has played
-        from the database.  Returns 0 for administrators or if the data
+        from the database. Returns 0 for administrators or if the data
         cannot be fetched.
 
         Returns:
@@ -154,7 +153,7 @@ class Casino_Interface:
             return 0
 
         try:
-            stats = self.dbm.get_player_statistics(user_id)
+            stats = self.dbm.fetch_player_statistics(user_id)
             return int(stats["rounds_played"]) if stats else 0
         except Exception:
             return 0
@@ -180,7 +179,7 @@ class Casino_Interface:
         )
         return False
 
-    def get_special_scores(self):
+    def fetch_special_scores(self):
         """
         Retrieves the player's personal best scores for Gauntlet and Endless
         modes from the database.
@@ -194,7 +193,7 @@ class Casino_Interface:
             return 0, 0
 
         try:
-            stats = self.dbm.get_player_statistics(user_id)
+            stats = self.dbm.fetch_player_statistics(user_id)
             if not stats:
                 return 0, 0
             gauntlet_pb = int(stats.get("gauntlet_max_rounds", 0))
@@ -207,7 +206,7 @@ class Casino_Interface:
 
     def casino_menu(self, frame):
         """
-        Renders the main casino menu.  Displays a sign-in prompt if no user
+        Displays the main casino menu. Displays a sign-in prompt if no user
         is logged in, or a personalised welcome message if one is.
 
         Game Menu and Game Settings buttons are disabled with an explanatory
@@ -301,11 +300,11 @@ class Casino_Interface:
 
     def show_game_menu(self, frame):
         """
-        Renders the game selection menu.  Requires an account to be linked;
+        Displays the game selection menu. Requires an account to be linked;
         redirects to the main menu with a warning if not.
 
         Gauntlet and Endless modes are configured and launched from Game
-        Settings.  The Leaderboard remains here for quick access.
+        Settings. The Leaderboard remains here for quick access.
 
         Args:
             frame (Frame): The parent frame to build the view into.
@@ -341,8 +340,8 @@ class Casino_Interface:
 
     def user_sign_up(self):
         """
-        Initiates the registration flow.  If the administrator is already
-        signed in, prompts for confirmation before proceeding.  Displays the
+        Initiates the registration flow. If the administrator is already
+        signed in, prompts for confirmation before proceeding. Displays the
         age restriction warning required under the Gambling Act 2005 before
         navigating to the username input screen.
         """
@@ -357,9 +356,9 @@ class Casino_Interface:
         messagebox.showwarning(
             "Age Restriction",
             "Under the Gambling Act 2005: Part 4, Protection of children and "
-            "young persons.  It is illegal to permit any person under the age "
-            "of 18 to enter a licensed gambling premises.  The only exception "
-            "is licensed family entertainment centres.  For further information "
+            "young persons. It is illegal to permit any person under the age "
+            "of 18 to enter a licensed gambling premises. The only exception "
+            "is licensed family entertainment centres. For further information "
             "please visit: https://www.legislation.gov.uk/ukpga/2005/19/contents.\n\n"
             "By proceeding you confirm that you are over the age of 18.",
         )
@@ -367,7 +366,7 @@ class Casino_Interface:
 
     def user_login_setup(self):
         """
-        Initiates the login flow.  If the administrator is signed in, prompts
+        Initiates the login flow. If the administrator is signed in, prompts
         for confirmation and clears the administrator flag if they choose to
         sign in as a different user.
         """
@@ -384,7 +383,7 @@ class Casino_Interface:
 
     def username_input(self, frame, is_register):
         """
-        Renders a username input form used for both registration and login.
+        Displays a username input form used for both registration and login.
 
         Args:
             frame (Frame): The parent frame to build the view into.
@@ -414,7 +413,7 @@ class Casino_Interface:
                 )
                 return
 
-            if is_register and self.dbm.get_user_presence(username).get("found"):
+            if is_register and self.dbm.fetch_user_presence(username).get("found"):
                 messagebox.showerror("Error", "Username already exists.")
                 return
 
@@ -455,13 +454,13 @@ class Casino_Interface:
 
         def temporary():
             self.dbm.sign_in_user(username, None, False)
-            result = self.dbm.get_user_id(username)
+            result = self.dbm.fetch_user_id(username)
             self.user_data["user_id"] = result["user_id"] if result["found"] else None
             self.user_data["username"] = username
             messagebox.showinfo("Success", f"Temporary account '{username}' created.")
             set_view(self, self.casino_menu)
 
-        for text, cmd in (
+        for text, command in (
             ("Register Account", register),
             ("Temporary Guest Account", temporary),
             ("Back", lambda: set_view(self, self.casino_menu)),
@@ -471,7 +470,7 @@ class Casino_Interface:
                 text=text,
                 font=self.styles["button"],
                 width=25,
-                command=cmd,
+                command=command,
             ).pack(pady=5)
 
     def create_password(self, frame, username):
@@ -488,7 +487,7 @@ class Casino_Interface:
         password_info = passwords_confirmation(frame, self.interface_root)
         if password_info["confirmed"]:
             self.dbm.sign_in_user(username, password_info["password"], True)
-            result = self.dbm.get_user_id(username)
+            result = self.dbm.fetch_user_id(username)
             self.user_data["user_id"] = result["user_id"] if result["found"] else None
             self.user_data["username"] = username
             messagebox.showinfo(
@@ -500,13 +499,13 @@ class Casino_Interface:
 
     def user_login(self, frame, username):
         """
-        Renders a password entry form for logging in as the given username.
+        Displays a password entry form for logging in as the given username.
 
         Args:
             frame (Frame): The parent frame to build the view into.
             username (str): The username attempting to log in.
         """
-        if not self.dbm.get_user_presence(username).get("found"):
+        if not self.dbm.fetch_user_presence(username).get("found"):
             messagebox.showerror("Error", f"Username '{username}' does not exist.")
             set_view(self, lambda f: self.username_input(f, is_register=False))
             return
@@ -528,7 +527,7 @@ class Casino_Interface:
             result = self.dbm.verify_user_password(username, password)
 
             if result.get("found") and result.get("verified"):
-                uid = self.dbm.get_user_id(username)
+                uid = self.dbm.fetch_user_id(username)
                 self.user_data["user_id"] = uid["user_id"] if uid["found"] else None
                 self.user_data["username"] = username
                 self.user_data["administrator"] = False
@@ -565,7 +564,7 @@ class Casino_Interface:
     def fetch_user_record(self, frame):
         """
         Retrieves and displays the full record for the currently signed-in
-        user.  Redirects with a warning if no user is linked.
+        user. Redirects with a warning if no user is linked.
 
         Args:
             frame (Frame): The parent frame to build the view into.
@@ -574,7 +573,7 @@ class Casino_Interface:
             set_view(self, self.casino_menu)
             return
 
-        record = self.dbm.get_user_full_record(username=self.user_data["username"])
+        record = self.dbm.fetch_user_full_record(username=self.user_data["username"])
         if not record:
             messagebox.showinfo("Not Found", "User record not found.")
             return
@@ -583,7 +582,7 @@ class Casino_Interface:
 
     def display_user_record(self, frame, record):
         """
-        Renders a read-only view of the current user's account information.
+        Displays a read-only view of the current user's account information.
 
         Args:
             frame (Frame): The parent frame to build the view into.
@@ -629,7 +628,7 @@ class Casino_Interface:
 
     def casino_exit(self):
         """
-        Prompts for confirmation before exiting the casino.  Displays a
+        Prompts for confirmation before exiting the casino. Displays a
         thank-you and responsible gambling message on confirmation.
         """
         if messagebox.askyesno("Exit Casino", "Do you wish to exit the casino?"):
@@ -645,18 +644,18 @@ class Casino_Interface:
 
     def game_settings(self, frame):
         """
-        Renders the Harrogate Hold 'Em Setting Modifier panel.
+        Displays the Harrogate Hold 'Em Setting Modifier panel.
 
         Requires an account to be linked; redirects if not.
 
         Sections
         --
-        1. Table Settings    — bot count, balances, blinds
-        2. Bot Difficulty    — global slider
-        3. Tournament Mode   — gated behind TOURNAMENT_MIN_ROUNDS
-        4. Gauntlet Mode     — styled card with ramp preview and launch button
-        5. Endless Mode      — styled card with high-score and launch button
-        6. Notes             — reference information
+        1. Table Settings — bot count, balances, blinds
+        2. Bot Difficulty — global slider
+        3. Tournament Mode — gated behind TOURNAMENT_MIN_ROUNDS
+        4. Gauntlet Mode — styled card with ramp preview and launch button
+        5. Endless Mode — styled card with high-score and launch button
+        6. Notes — reference information
 
         Args:
             frame (Frame): The parent frame to build the view into.
@@ -704,7 +703,7 @@ class Casino_Interface:
         # Layout helpers
 
         def section_label(text, colour="#555555"):
-            """Renders a coloured section header with a divider line."""
+            """Displays a coloured section header with a divider line."""
             Label(
                 inner,
                 text=text,
@@ -740,18 +739,18 @@ class Casino_Interface:
             launch_command=None,
         ):
             """
-            Renders a styled card with a coloured banner and content area.
+            Displays a styled card with a coloured banner and content area.
 
-            An optional launch button may be appended if ``launch_text`` is
+            An optional launch button may be appended if 'launch_text' is
             provided; this keeps the helper useful for both game modes and the
             regular settings sections.
 
             Args:
-                parent:          Parent widget.
-                bg_colour:       Card background colour.
-                border_colour:   Left-border accent colour.
-                title_text:      Text shown in the banner.
-                title_fg:        Banner text colour.
+                parent: Parent widget.
+                bg_colour: Card background colour.
+                border_colour: Left-border accent colour.
+                title_text: Text shown in the banner.
+                title_fg: Banner text colour.
                 body_widgets_fn: Callable(inner_frame) that adds widgets to the
                                  card body.
                 launch_text (str, optional): Label for the launch button.
@@ -920,7 +919,7 @@ class Casino_Interface:
         )
 
         def build_tournament_body(body):
-            rounds_played = self.get_rounds_played()
+            rounds_played = self.fetch_rounds_played()
             rounds_needed = max(0, TOURNAMENT_MIN_ROUNDS - rounds_played)
 
             if rounds_needed > 0:
@@ -967,13 +966,13 @@ class Casino_Interface:
 
                 Label(
                     body,
-                    text=f"Rounds played: {rounds_played}  ✓  Tournament Mode unlocked.",
+                    text=f"Rounds played: {rounds_played}.",
                     font=self.styles["emphasis"],
                     anchor="w",
                 ).pack(fill="x", padx=20, pady=(0, 4))
 
                 section_label(
-                    "Tournament Options  (active when Tournament Mode is on)",
+                    "Tournament Options:",
                     "#9b7bb8",
                 )
 
@@ -1069,9 +1068,9 @@ class Casino_Interface:
         )
 
         # Gauntlet Mode card
-        section_label("⚔  Gauntlet Mode", "#b85c38")
+        section_label("Gauntlet Mode", "#b85c38")
 
-        gauntlet_pb, _ = self.get_special_scores()
+        gauntlet_pb, _ = self.fetch_special_scores()
 
         # Ramp preview
         def ramp_preview_text(start_diff):
@@ -1219,9 +1218,9 @@ class Casino_Interface:
         )
 
         # Endless Mode card
-        section_label("∞  Endless Mode", "#2e6b4f")
+        section_label("Endless Mode", "#2e6b4f")
 
-        _, endless_pb = self.get_special_scores()
+        _, endless_pb = self.fetch_special_scores()
 
         def build_endless_body(body):
             """Populates the Endless card body."""
@@ -1230,7 +1229,7 @@ class Casino_Interface:
                 text=(
                     f"Face the maximum {ENDLESS_BOT_COUNT} bots simultaneously.\n"
                     f"Bot difficulties are randomly distributed (0–100) and "
-                    f"reshuffled every round.  There is no win condition — "
+                    f"reshuffled every round. There is no win condition — "
                     f"survive as long as possible."
                 ),
                 font=self.styles["text"],
@@ -1381,7 +1380,7 @@ class Casino_Interface:
                     "gauntlet_start_difficulty", GAUNTLET_START_DIFFICULTY
                 )
 
-            if self.get_rounds_played() < TOURNAMENT_MIN_ROUNDS:
+            if self.fetch_rounds_played() < TOURNAMENT_MIN_ROUNDS:
                 tournament_on = False
             else:
                 tournament_on = bool(v_tournament.get())
@@ -1420,7 +1419,7 @@ class Casino_Interface:
                 self.settings = dict(DEFAULT_SETTINGS)
                 set_view(self, self.game_settings)
 
-        for text, cmd in (
+        for text, command in (
             ("Save Settings", save_settings),
             ("Reset to Defaults", reset_defaults),
             ("Back to Game Menu", lambda: set_view(self, self.show_game_menu)),
@@ -1430,15 +1429,15 @@ class Casino_Interface:
                 text=text,
                 font=self.styles["button"],
                 width=20,
-                command=cmd,
+                command=command,
             ).pack(side="left", padx=10)
 
     # Leaderboard
 
     def show_leaderboard(self, frame):
         """
-        Renders a leaderboard showing the top Gauntlet and Endless scores
-        across all players in the database.  Uses get_all_players_data()
+        Displays a leaderboard showing the top Gauntlet and Endless scores
+        across all players in the database. Uses get_all_players_data()
         to retrieve the full data set and sorts by each metric.
 
         Args:
@@ -1446,17 +1445,17 @@ class Casino_Interface:
         """
         Label(
             frame,
-            text="🏆  Leaderboard",
+            text="Leaderboard",
             font=self.styles["heading"],
         ).pack(pady=(15, 5))
 
         try:
-            all_data = self.dbm.get_all_players_data()
+            all_data = self.dbm.fetch_all_players_data()
         except Exception:
             all_data = []
 
         def board_section(title, key, unit="rounds"):
-            """Renders a titled top-5 table for a single metric."""
+            """Displays a titled top-5 table for a single metric."""
             Label(
                 frame,
                 text=title,
@@ -1480,7 +1479,7 @@ class Casino_Interface:
 
             for i, entry in enumerate(ranked, 1):
                 try:
-                    result = self.dbm.get_username(entry["user_id"])
+                    result = self.dbm.fetch_username(entry["user_id"])
                     username = (
                         result["username"]
                         if result["found"]
@@ -1497,8 +1496,8 @@ class Casino_Interface:
                     anchor="w",
                 ).pack(fill="x", padx=60, pady=1)
 
-        board_section("⚔  Gauntlet — Most Rounds Survived", "gauntlet_max_rounds")
-        board_section("∞  Endless  — Most Rounds Survived", "endless_high_score")
+        board_section("Gauntlet — Most Rounds Survived", "gauntlet_max_rounds")
+        board_section("Endless — Most Rounds Survived", "endless_high_score")
 
         Button(
             frame,
@@ -1510,7 +1509,7 @@ class Casino_Interface:
 
     # Post-game summary (special modes)
 
-    def _show_special_mode_summary(self, mode, rounds_survived):
+    def show_special_mode_summary(self, mode, rounds_survived):
         """
         Shows a post-game summary dialog for Gauntlet or Endless mode,
         comparing the result to the player's stored personal best and
@@ -1521,7 +1520,7 @@ class Casino_Interface:
             rounds_survived (int): How many rounds the player survived.
         """
         user_id = self.user_data.get("user_id")
-        gauntlet_pb, endless_pb = self.get_special_scores()
+        gauntlet_pb, endless_pb = self.fetch_special_scores()
 
         if mode == "gauntlet":
             old_pb = gauntlet_pb
@@ -1541,19 +1540,19 @@ class Casino_Interface:
                 pass
 
         if new_record:
-            title = f"🏆  New Personal Best!"
+            title = f"New Personal Best!"
             msg = (
                 f"{label} Mode — Game Over\n\n"
-                f"Rounds survived:  {rounds_survived}\n"
-                f"Previous best:    {old_pb}\n\n"
-                f"New personal best!  Well played."
+                f"Rounds survived: {rounds_survived}\n"
+                f"Previous best: {old_pb}\n\n"
+                f"New personal best! Well played."
             )
         else:
             title = f"{label} Mode — Game Over"
             msg = (
                 f"{label} Mode — Game Over\n\n"
-                f"Rounds survived:  {rounds_survived}\n"
-                f"Personal best:    {old_pb}\n\n"
+                f"Rounds survived: {rounds_survived}\n"
+                f"Personal best: {old_pb}\n\n"
                 f"{'So close! ' if rounds_survived >= old_pb - 2 and old_pb > 0 else ''}"
                 f"Keep going to beat your record!"
             )
@@ -1565,7 +1564,7 @@ class Casino_Interface:
 
     def whitejoe_rules(self):
         """
-        Launches the WhiteJoe rules window.  Requires a linked account.
+        Launches the WhiteJoe rules window. Requires a linked account.
         On the user agreeing to the rules, starts the WhiteJoe game.
         """
         if not self.require_linked("WhiteJoe"):
@@ -1579,16 +1578,16 @@ class Casino_Interface:
     def start_whitejoe(self):
         """
         Instantiates and launches the WhiteJoe game, passing the current
-        user data and settings.
+        user data.
         """
         from whitejoe_V6 import WhiteJoe
 
-        WhiteJoe(self.user_data, self.settings)
+        WhiteJoe(self.user_data)
 
     def harrogate_hold_em_rules(self):
         """
-        Launches the Harrogate Hold 'Em rules window.  Requires a linked
-        account.  On the user agreeing to the rules, starts the game.
+        Launches the Harrogate Hold 'Em rules window. Requires a linked
+        account. On the user agreeing to the rules, starts the game.
         """
         if not self.require_linked("Harrogate Hold 'Em"):
             return
@@ -1601,7 +1600,7 @@ class Casino_Interface:
     def start_harrogate(self):
         """
         Builds a bot roster from self.settings and launches standard
-        Harrogate Hold 'Em V7.
+        Harrogate Hold 'Em.
 
         If tournament_mode is True but the player is below the round
         threshold, tournament_mode is silently forced off as a safety net
@@ -1616,7 +1615,7 @@ class Casino_Interface:
         settings["endless_mode"] = False
         if (
             settings.get("tournament_mode")
-            and self.get_rounds_played() < TOURNAMENT_MIN_ROUNDS
+            and self.fetch_rounds_played() < TOURNAMENT_MIN_ROUNDS
         ):
             settings["tournament_mode"] = False
 
@@ -1633,15 +1632,15 @@ class Casino_Interface:
         """
         Launches Gauntlet Mode.
 
-        Builds a settings dict with ``gauntlet_mode=True`` and the chosen
-        starting difficulty.  The game engine is expected to read
-        ``gauntlet_mode``, ``gauntlet_start_difficulty``,
-        ``gauntlet_difficulty_step``, and ``gauntlet_ramp_interval`` from
+        Builds a settings dict with 'gauntlet_mode=True' and the chosen
+        starting difficulty. The game engine is expected to read
+        'gauntlet_mode', 'gauntlet_start_difficulty',
+        'gauntlet_difficulty_step', and 'gauntlet_ramp_interval' from
         the settings dict to implement the ramp.
 
-        After the game returns, ``_show_special_mode_summary`` is called
+        After the game returns, 'show_special_mode_summary' is called
         with the rounds survived, which the engine should store in
-        ``settings["rounds_survived"]`` on exit.
+        'settings["rounds_survived"]' on exit.
 
         Args:
             start_difficulty (int, optional): Starting bot difficulty.
@@ -1675,17 +1674,17 @@ class Casino_Interface:
         HarrogateHoldEm(self.user_data, settings, bots)
 
         rounds = int(settings.get("rounds_survived", 0))
-        self._show_special_mode_summary("gauntlet", rounds)
+        self.show_special_mode_summary("gauntlet", rounds)
 
     def start_endless(self):
         """
         Launches Endless Mode.
 
         Nine bots are created with randomly distributed difficulties across
-        the full 0–100 range.  The settings dict carries ``endless_mode=True``
+        the full 0–100 range. The settings dict carries 'endless_mode=True'
         so the engine can reshuffle bot difficulties each round and never
-        declare a winner.  Rounds survived are read back from
-        ``settings["rounds_survived"]`` after the game returns.
+        declare a winner. Rounds survived are read back from
+        'settings["rounds_survived"]' after the game returns.
         """
         from harrogate_hold_em_V6 import HarrogateHoldEm, DEFAULT_BOT_ROSTER
         import random
@@ -1712,7 +1711,7 @@ class Casino_Interface:
         HarrogateHoldEm(self.user_data, settings, bots)
 
         rounds = int(settings.get("rounds_survived", 0))
-        self._show_special_mode_summary("endless", rounds)
+        self.show_special_mode_summary("endless", rounds)
 
 
 if __name__ == "__main__":

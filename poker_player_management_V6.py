@@ -44,7 +44,7 @@ class PokerPlayer:
     def __init__(self, *, user_id=None, is_bot=False, difficulty=None):
         """
         Initialises a poker player instance, delegating to init_player() for
-        human players or init_bot() for AI bots.  Sets active_range to a
+        human players or init_bot() for AI bots. Sets active_range to a
         copy of base_range after initialisation.
 
         Args:
@@ -80,8 +80,8 @@ class PokerPlayer:
     def init_player(self):
         """
         Initialises a human player by loading their poker data from the
-        database.  Sets all statistical attributes from the loaded record.
-        Uses a default range for inexperienced players (≤50 rounds) while
+        database. Sets all statistical attributes from the loaded record.
+        Uses a default range for inexperienced players (<=50 rounds) while
         preserving the stored range for future updates.
 
         Raises:
@@ -127,8 +127,8 @@ class PokerPlayer:
     def init_bot(self):
         """
         Initialises an AI bot with synthetically generated tendencies scaled
-        by difficulty.  Higher difficulty bots are tighter, more aggressive,
-        bluff more optimally, and use more Monte Carlo simulations.  No
+        by difficulty. Higher difficulty bots are tighter, more aggressive,
+        bluff more optimally, and use more Monte Carlo simulations. No
         database interaction occurs.
 
         Raises:
@@ -174,13 +174,13 @@ class PokerPlayer:
             to_call (float): The amount required to call.
             balance (float): The player's remaining chips.
             street (str): The current betting round ('preflop', 'flop',
-                          'turn', or 'river').
+            'turn', or 'river').
 
         Returns:
             tuple: One of:
-                   - ``("fold",)``
-                   - ``("call",)``
-                   - ``("raise", amount)``
+                   - '("fold",)'
+                   - '("call",)'
+                   - '("raise", amount)'
         """
         opponent_ranges = [opp.active_range for opp in opponents]
         opponent_count = len(opponents)
@@ -245,7 +245,7 @@ class PokerPlayer:
 
     # Introspection
 
-    def get_player_info(self):
+    def fetch_player_info(self):
         """
         Returns a summary dictionary of this player's characteristics and
         statistics.
@@ -371,7 +371,7 @@ def generate_range_chart():
 def hand_strength_rank(hand):
     """
     Calculates a relative numeric strength ranking for a hand notation.
-    Used to sort hands by strength for range generation.  Pocket pairs
+    Used to sort hands by strength for range generation. Pocket pairs
     receive a bonus over non-pairs; suited hands rank above offsuit.
 
     Args:
@@ -393,8 +393,8 @@ def hand_strength_rank(hand):
 def generate_bot_range(vpip_target, difficulty):
     """
     Generates a bot's starting hand range based on a VPIP target and
-    difficulty.  Higher difficulty produces more nuanced, non-linear hand
-    selection via an exponent applied to the strength ranking.  The top
+    difficulty. Higher difficulty produces more nuanced, non-linear hand
+    selection via an exponent applied to the strength ranking. The top
     vpip_target percent of hands by adjusted strength are included.
 
     Args:
@@ -419,9 +419,9 @@ def validate_hand_notation(hand):
     Validates whether a string is a correctly formatted poker hand notation.
 
     Valid formats:
-        - ``'AA'``, ``'KK'`` etc. (pocket pairs): two identical rank chars.
-        - ``'AKs'``, ``'QJs'`` etc. (suited): two different ranks + 's'.
-        - ``'AKo'``, ``'T9o'`` etc. (offsuit): two different ranks + 'o'.
+        - ''AA'', ''KK'' etc. (pocket pairs): two identical rank chars.
+        - ''AKs'', ''QJs'' etc. (suited): two different ranks + 's'.
+        - ''AKo'', ''T9o'' etc. (offsuit): two different ranks + 'o'.
 
     Args:
         hand (str): The string to validate.
@@ -445,7 +445,7 @@ def validate_hand_notation(hand):
 def update_range(chart, action, hand, delta=DEFAULT_DELTA):
     """
     Updates a range chart based on an observed action, then normalises the
-    probabilities to sum to 1.0.  Raising increases the hand's probability,
+    probabilities to sum to 1.0. Raising increases the hand's probability,
     folding decreases it, and calling applies a smaller increase.
 
     Args:
@@ -453,7 +453,7 @@ def update_range(chart, action, hand, delta=DEFAULT_DELTA):
                       probabilities.
         action (str): Observed action — 'raise', 'call', or 'fold'.
         hand (str): Hand notation to update.
-        delta (float): Base adjustment magnitude.  Defaults to
+        delta (float): Base adjustment magnitude. Defaults to
                        DEFAULT_DELTA (0.05).
 
     Returns:
@@ -486,7 +486,7 @@ def update_range(chart, action, hand, delta=DEFAULT_DELTA):
 
 def difficulty_curve(level, low, high):
     """
-    Linearly interpolates between ``low`` and ``high`` based on a difficulty
+    Linearly interpolates between 'low' and 'high' based on a difficulty
     level clamped to the 0–100 range.
 
     Args:
@@ -504,7 +504,7 @@ def difficulty_curve(level, low, high):
 def apply_noise(value, bot):
     """
     Applies difficulty-scaled random noise to a value, clamping the result
-    to 0.0–1.0.  Low-difficulty bots experience more noise, simulating
+    to 0.0–1.0. Low-difficulty bots experience more noise, simulating
     less accurate decision-making.
 
     Args:
@@ -547,7 +547,7 @@ def describe_hand(player_hand, community_cards):
 
 def build_rank_index(available):
     """
-    Pre-builds a rank → card-string mapping from a list of card strings.
+    Pre-builds a rank -> card-string mapping from a list of card strings.
 
     Args:
         available (list[str]): Card strings currently in a deck.
@@ -563,20 +563,20 @@ def build_rank_index(available):
 
 def hand_equity(player_hand, community_cards, opponent_range, bot=None):
     """
-    Estimates the hero's equity against a single opponent range via Monte
+    Estimates the player's equity against a single opponent range via Monte
     Carlo simulation.
 
     Performance notes:
-        - Base deck built once; hero and board cards removed once.
+        - Base deck built once; player and board cards removed once.
         - Each simulation copies the base deck and shuffles the copy.
         - Rank index is pre-built per simulation from remaining cards.
         - Opponent hand drawn from the copy so removals do not accumulate.
         - Early exit if no valid results after TIME_OUT iterations.
 
     Args:
-        player_hand (list[str]): The hero's two hole cards.
+        player_hand (list[str]): The player's two hole cards.
         community_cards (list[str]): Known community cards (0–5).
-        opponent_range (dict): Opponent range chart (notation → probability).
+        opponent_range (dict): Opponent range chart (notation -> probability).
         bot (BotCharacteristics or None): Bot parameters controlling
                                           simulation count.  Returns 0.5
                                           if None.
@@ -595,10 +595,10 @@ def hand_equity(player_hand, community_cards, opponent_range, bot=None):
     dm_base = CasinoDeckManager(shuffle=False, game_mode="poker")
     dm_base.deck.cards = list(CasinoDeckManager(shuffle=True).deck.cards)
 
-    hero = [dm_base.str_to_treys(c) for c in player_hand]
+    player = [dm_base.str_to_treys(c) for c in player_hand]
     board_known = [dm_base.str_to_treys(c) for c in community_cards]
 
-    for c in hero + board_known:
+    for c in player + board_known:
         dm_base.remove_card(c)
 
     valid_hands = [(h, p) for h, p in opponent_range.items() if p > 0]
@@ -626,16 +626,14 @@ def hand_equity(player_hand, community_cards, opponent_range, bot=None):
         board = board_known + drawn
 
         try:
-            hero_score = sim_dm.evaluator.evaluate(hero, board)
+            player_score = sim_dm.evaluator.evaluate(player, board)
         except Exception:
             continue
 
         hand_notation = random.choices(hands, weights=probs, k=1)[0]
         available = sim_dm.str_deck()
         rank_index = build_rank_index(available)
-        opp_hand_cards = _notation_to_cards_with_index(
-            hand_notation, rank_index, sim_dm
-        )
+        opp_hand_cards = notation_to_cards_with_index(hand_notation, rank_index, sim_dm)
 
         if opp_hand_cards is None:
             continue
@@ -646,9 +644,9 @@ def hand_equity(player_hand, community_cards, opponent_range, bot=None):
             continue
 
         total += 1
-        if hero_score < opp_score:
+        if player_score < opp_score:
             wins += 1
-        elif hero_score == opp_score:
+        elif player_score == opp_score:
             ties += 1
 
     if total == 0:
@@ -657,15 +655,15 @@ def hand_equity(player_hand, community_cards, opponent_range, bot=None):
     return max(0.0, min(1.0, (wins + ties * 0.5) / total))
 
 
-def _notation_to_cards_with_index(hand_notation, rank_index, dm):
+def notation_to_cards_with_index(hand_notation, rank_index, dm):
     """
     Converts a hand notation string to two treys card integers using a
-    pre-built rank index.  Returns None if the required cards are
+    pre-built rank index. Returns None if the required cards are
     unavailable in the current simulation deck.
 
     Args:
         hand_notation (str): Hand notation (e.g. 'AKs', 'TT', 'QJo').
-        rank_index (dict): Rank → available card strings mapping.
+        rank_index (dict): Rank -> available card strings mapping.
         dm (CasinoDeckManager): The simulation deck manager.
 
     Returns:
@@ -700,7 +698,7 @@ def _notation_to_cards_with_index(hand_notation, rank_index, dm):
 def notation_to_specific_cards(hand_notation, dm):
     """
     Public wrapper: converts a hand notation to treys card integers using
-    the cards available in ``dm``.
+    the cards available in 'dm'.
 
     Args:
         hand_notation (str): Hand notation string.
@@ -713,13 +711,13 @@ def notation_to_specific_cards(hand_notation, dm):
     if not available:
         return None
     rank_index = build_rank_index(available)
-    return _notation_to_cards_with_index(hand_notation, rank_index, dm)
+    return notation_to_cards_with_index(hand_notation, rank_index, dm)
 
 
 def calculate_simulation_count(street, difficulty):
     """
     Returns the number of Monte Carlo simulations to run for equity
-    estimation based on the current street and bot difficulty.  Later
+    estimation based on the current street and bot difficulty. Later
     streets and higher difficulties use more simulations.
 
     Args:
@@ -743,11 +741,11 @@ def collective_hand_equity(
     player_hand, community_cards, opponent_ranges, opponent_count, bot=None
 ):
     """
-    Estimates the hero's joint equity against multiple opponents by
+    Estimates the player's joint equity against multiple opponents by
     multiplying individual equities together.
 
     Args:
-        player_hand (list[str]): The hero's two hole cards.
+        player_hand (list[str]): The player's two hole cards.
         community_cards (list[str]): Known community cards.
         opponent_ranges (list[dict]): One range chart per opponent.
         opponent_count (int): Number of active opponents.
@@ -807,7 +805,7 @@ def estimate_outs(player_hand, community_cards):
     """
     Estimates the number of outs available to improve the hand.
     Considers flush draws, open-ended straight draws, gutshot straight
-    draws, and overcards.  Capped at MAX_OUTS.
+    draws, and overcards. Capped at MAX_OUTS.
 
     Args:
         player_hand (list[str]): The player's two hole cards.
@@ -876,7 +874,7 @@ def probability_to_hit_by_river(outs, cards_remaining, cards_to_come):
         cards_to_come (int): Number of cards still to be dealt.
 
     Returns:
-        float: Hit probability (0.0–1.0).  Returns 0.0 if outs or
+        float: Hit probability (0.0–1.0). Returns 0.0 if outs or
                cards_remaining are zero or negative.
     """
     if outs <= 0 or cards_remaining <= 0:
@@ -903,7 +901,7 @@ def minimum_defense_frequency(bet, pot):
         pot (float): Size of the pot before the bet.
 
     Returns:
-        float: MDF (0.0–1.0).  Returns 0.0 if bet is zero or negative.
+        float: MDF (0.0–1.0). Returns 0.0 if bet is zero or negative.
     """
     if bet <= 0:
         return 0.0
@@ -920,7 +918,7 @@ def optimal_bluff_ratio(pot, bet):
         bet (float): Size of the proposed bluff.
 
     Returns:
-        float: Optimal bluff frequency (0.0–1.0).  Returns 0.0 if either
+        float: Optimal bluff frequency (0.0–1.0). Returns 0.0 if either
                argument is zero or negative.
     """
     if bet <= 0 or pot <= 0:
@@ -982,8 +980,8 @@ def should_bluff_raise(pot, raise_amount, equity, opponent_fold_to_raise, bot):
 def calculate_raise_amount(pot, equity, balance, bot):
     """
     Calculates an appropriate raise amount based on pot size, hand equity,
-    available balance, and bot difficulty.  High-difficulty bots use larger
-    sizing.  The result is rounded down to the nearest £5 and capped at
+    available balance, and bot difficulty. High-difficulty bots use larger
+    sizing. The result is rounded down to the nearest £5 and capped at
     the player's balance.
 
     Args:
@@ -1017,11 +1015,11 @@ def cards_to_notation(player_hand):
 
     Args:
         player_hand (list[str]): Two card strings in 'Rs' format
-                                 (e.g. ``['As', 'Kh']``).
+                                 (e.g. '['As', 'Kh']').
 
     Returns:
-        str: Notation string — pocket pair (e.g. ``'AA'``), suited
-             (e.g. ``'AKs'``), or offsuit (e.g. ``'AKo'``).
+        str: Notation string — pocket pair (e.g. ''AA''), suited
+             (e.g. ''AKs''), or offsuit (e.g. ''AKo'').
     """
     ranks = "23456789TJQKA"
 
@@ -1057,21 +1055,21 @@ def make_decision(
     Makes a poker decision using game-theory principles and opponent
     modelling.
 
-    Each step is applied in order.  The first step that produces a
+    Each step is applied in order. The first step that produces a
     conclusive action returns immediately.
 
     **Step 1 — Preflop range check**
         If on the preflop street the bot's hand is not in its assigned
         range it folds (or limps) unless a random roll beats
-        ``(1 - range_adherence)``, in which case it plays the hand as a
-        bluff.  Hands inside the range continue with a multiplier that
+        '(1 - range_adherence)', in which case it plays the hand as a
+        bluff. Hands inside the range continue with a multiplier that
         scales their equity upward.
 
     **Step 2 — Equity calculation**
         Joint equity against all active opponents is estimated via Monte
-        Carlo simulation (``collective_hand_equity``).  Noise scaled by
+        Carlo simulation ('collective_hand_equity'). Noise scaled by
         difficulty is applied, the range multiplier is factored in, and
-        risk tolerance scales the result.  Low-difficulty bots may further
+        risk tolerance scales the result. Low-difficulty bots may further
         misestimate equity by a random factor.
 
     **Step 3 — Premium river hands (difficulty ≥ 85)**
@@ -1085,7 +1083,7 @@ def make_decision(
 
     **Step 5 — Drawing hands (flop / turn only)**
         The number of outs is estimated and converted to a hit probability
-        by the river.  Equity is updated to the maximum of the Monte Carlo
+        by the river. Equity is updated to the maximum of the Monte Carlo
         estimate and the draw-based estimate.
 
     **Step 6 — Value raise**
@@ -1097,19 +1095,19 @@ def make_decision(
 
     **Step 8 — Minimum Defence Frequency**
         If equity meets the pot-odds threshold the bot defends at a
-        frequency proportional to MDF scaled by ``mdf_threshold``.
+        frequency proportional to MDF scaled by 'mdf_threshold'.
 
     **Step 9 — Bluffing**
         With low equity the bot may attempt a bluff raise or bluff call
-        based on opponent fold tendencies and ``bluff_multiplier``.
+        based on opponent fold tendencies and 'bluff_multiplier'.
         Low-difficulty bots may make random bluffing errors.
 
     **Step 10 — Fold bias (anti-fold nudge)**
-        Before the default fold action, a difficulty-scaled ``fold_bias``
-        check is performed.  If the random roll is below ``bot.fold_bias``
+        Before the default fold action, a difficulty-scaled 'fold_bias'
+        check is performed. If the random roll is below 'bot.fold_bias'
         the bot calls instead of folding.  Easy bots (fold_bias ≈ 0.40)
         are noticeably reluctant to fold; hard bots (fold_bias ≈ 0.04)
-        are rarely swayed, keeping their play close to optimal.  The bias
+        are rarely swayed, keeping their play close to optimal. The bias
         only triggers when the bot can actually afford to call.
 
     **Step 11 — Default fold**
@@ -1127,13 +1125,13 @@ def make_decision(
         to_call (float): Amount required to call.
         bot (BotCharacteristics): Bot decision-making parameters.
         street (str): Current betting round — 'preflop', 'flop', 'turn',
-                      or 'river'.
+        or 'river'.
 
     Returns:
         tuple: One of:
-               - ``("fold",)``
-               - ``("call",)``
-               - ``("raise", amount)``
+               - '("fold",)'
+               - '("call",)'
+               - '("raise", amount)'
     """
     error_prob = max(0.0, 1.0 - bot.difficulty / 100.0)
 

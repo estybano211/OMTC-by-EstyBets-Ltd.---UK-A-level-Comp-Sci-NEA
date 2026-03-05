@@ -12,19 +12,19 @@ from tkinter import (
 )
 from typing import cast
 from deck_management_V6 import CasinoDeckManager
-from gui_helpers_V6 import set_view, DELAY, get_font_settings
+from gui_helpers_V6 import set_view, DELAY, fetch_font_settings
 
 
 class WhiteJoe:
     """
-    Implements the WhiteJoe blackjack variant as a tkinter GUI application.
+    Starts a new window for the WhiteJoe game mode, which is a custom blackjack variant.
     Handles all game state, betting logic, card dealing, dealer resolution,
     and balance management. Supports both regular user and administrator
     sessions. All game events are logged to a scrollable message panel with
     colour-coded entries for wins, losses, and pushes.
     """
 
-    def __init__(self, user_data, settings):
+    def __init__(self, user_data):
         """
         Initialises the WhiteJoe game window, sets up external resources,
         initialises game state variables, and builds the main game interface.
@@ -56,7 +56,7 @@ class WhiteJoe:
 
         self.dbm = DatabaseManagement()
 
-        self.styles = get_font_settings(self.wj_root)
+        self.styles = fetch_font_settings(self.wj_root)
 
         self.main_frame = Frame(self.wj_root)
         self.main_frame.pack(expand=True, fill="both", padx=10, pady=10)
@@ -172,7 +172,7 @@ class WhiteJoe:
         balance = 0
 
         if not self.user_data.get("administrator"):
-            balance_data = self.dbm.get_user_balance(self.user_data["username"])
+            balance_data = self.dbm.fetch_user_balance(self.user_data["username"])
 
             if not balance_data["found"]:
                 self.return_to_menu(
@@ -515,7 +515,7 @@ class WhiteJoe:
         Returns:
             float: The current balance, or 0 if an error occurred.
         """
-        balance_data = self.dbm.get_user_balance(self.user_data["username"])
+        balance_data = self.dbm.fetch_user_balance(self.user_data["username"])
 
         if not balance_data["found"]:
             self.return_to_menu(
@@ -699,7 +699,7 @@ class WhiteJoe:
                          gambling reminder.
             push (bool): If True, returns the bet to the player's balance.
         """
-        balance_data = self.dbm.get_user_balance(self.user_data["username"])
+        balance_data = self.dbm.fetch_user_balance(self.user_data["username"])
         balance = balance_data["balance"] if balance_data["found"] else 0
 
         if win:
@@ -812,7 +812,7 @@ class WhiteJoe:
 
         self.log_message(text="You've chosen to double down.")
 
-        balance_data = self.dbm.get_user_balance(self.user_data["username"])
+        balance_data = self.dbm.fetch_user_balance(self.user_data["username"])
 
         if not balance_data["found"]:
             self.return_to_menu(
@@ -863,7 +863,7 @@ class WhiteJoe:
 
         self.log_message(text="You've chosen to surrender.")
 
-        balance_data = self.dbm.get_user_balance(self.user_data["username"])
+        balance_data = self.dbm.fetch_user_balance(self.user_data["username"])
         balance = balance_data["balance"] if balance_data["found"] else 0
         refund = self.current_bet // 2
         self.modify_user_balance(balance + refund)
@@ -880,5 +880,5 @@ class WhiteJoe:
 
 if __name__ == "__main__":
     user_data = {"username": "Administrator", "administrator": True}
-    wj = WhiteJoe(user_data, settings=None)
+    wj = WhiteJoe(user_data)
     wj.run()

@@ -15,7 +15,7 @@ from typing import cast
 from queue import Queue, Empty
 import threading
 
-from gui_helpers_V6 import set_view, DELAY, get_font_settings
+from gui_helpers_V6 import set_view, DELAY, fetch_font_settings
 from deck_management_V6 import CasinoDeckManager
 from poker_player_management_V6 import PokerPlayer
 
@@ -110,7 +110,7 @@ class TournamentManager:
         Initialises TournamentManager from the casino settings dictionary.
 
         Args:
-            settings (dict): Casino settings dict.  Keys read:
+            settings (dict): Casino settings dict. Keys read:
                              tournament_rounds, tournament_players,
                              win_criteria, win_criteria_target,
                              small_blind, big_blind.
@@ -135,7 +135,7 @@ class TournamentManager:
     @property
     def current_small_blind(self):
         """
-        Returns the small blind for the current round.  For
+        Returns the small blind for the current round. For
         WIN_CRITERIA_LAST_MAN_BLIND the blind doubles every round; all
         other modes escalate by 50 % every three rounds.
 
@@ -215,9 +215,9 @@ class TournamentManager:
 
         Returns:
             dict: A result dictionary with keys:
-                  - ``tournament_over`` (bool)
-                  - ``tournament_won`` (bool)
-                  - ``message`` (str) — human-readable outcome message.
+                  - 'tournament_over' (bool)
+                  - 'tournament_won' (bool)
+                  - 'message' (str) — human-readable outcome message.
         """
         if human_won_round:
             self.round_wins += 1
@@ -262,7 +262,7 @@ class TournamentManager:
             "message": msg,
         }
 
-    def get_status_text(self):
+    def fetch_status_text(self):
         """
         Returns a single-line status string suitable for display in the
         tournament status label during active gameplay.
@@ -297,15 +297,15 @@ class HarrogateHoldEm:
 
         Args:
             user_data (dict): Must contain at minimum:
-                              ``username`` (str), ``user_id``,
-                              ``administrator`` (bool).
+                              'username' (str), 'user_id',
+                              'administrator' (bool).
             settings (dict): Game configuration.  Keys used:
-                             ``bot_count``, ``bot_balance``,
-                             ``small_blind``, ``big_blind``,
-                             ``bot_difficulty``, ``tournament_mode``,
-                             ``tournament_rounds``, ``tournament_players``,
-                             ``win_criteria``, ``win_criteria_target``.
-            bots (list or None): List of ``[name, difficulty]`` pairs for
+                             'bot_count', 'bot_balance',
+                             'small_blind', 'big_blind',
+                             'bot_difficulty', 'tournament_mode',
+                             'tournament_rounds', 'tournament_players',
+                             'win_criteria', 'win_criteria_target'.
+            bots (list or None): List of '[name, difficulty]' pairs for
                                  bot opponents.  If None, bots are
                                  auto-generated from settings and
                                  DEFAULT_BOT_ROSTER.
@@ -336,7 +336,7 @@ class HarrogateHoldEm:
         if not self.dbm.check_user_poker_data_exists(user_data["user_id"]):
             self.dbm.initialise_user_poker_data(user_data["user_id"])
 
-        self.styles = get_font_settings(self.hhe_root)
+        self.styles = fetch_font_settings(self.hhe_root)
 
         # Auto-generate bots if not supplied
         if bots is None:
@@ -448,32 +448,32 @@ class HarrogateHoldEm:
 
         self.colour_scheme = {
             # Left-hand panels
-            "top_left_bg": "#2b2b2b",
-            "bottom_left_bg": "#252525",
+            "top_left_bg": "#ddd3bc",
+            "bottom_left_bg": "#e6dcc6",
             # Right-hand panels
-            "top_right_bg": "#1e3a4a",
-            "middle_right_bg": "#1a3040",
-            "bottom_right_bg": "#1c1c2e",
+            "top_right_bg": "#2e7d73",
+            "middle_right_bg": "#286b62",
+            "bottom_right_bg": "#5b2a3c",
             # Interactive widgets
-            "widget_bg": "#2e4a5a",
-            "text_bg": "#111111",
-            "text_fg": "#e8e8e8",
+            "widget_bg": "#6a2e4f",
+            "text_bg": "#141414",
+            "text_fg": "#322020",
             # Log panel
-            "log_bg": "#1a1a2e",
-            "log_fg": "#c8c8c8",
+            "log_bg": "#1a1a1a",
+            "log_fg": "#cfcfcf",
             # Log entry colour coding
-            "start_bg": "#1e3a5f",
-            "start_fg": "#a8c8f0",
-            "win_bg": "#1e3d2f",
-            "win_fg": "#90d4a8",
-            "loss_bg": "#3d1e1e",
-            "loss_fg": "#e8a0a0",
-            "tie_bg": "#3a3010",
-            "tie_fg": "#e0cc80",
-            "thinking_bg": "#2a2a3c",
-            "thinking_fg": "#a0a8d8",
-            "tournament_bg": "#2a1e3a",
-            "tournament_fg": "#c0a8e0",
+            "start_bg": "#243b7a",
+            "start_fg": "#ffffff",
+            "win_bg": "#244d3a",
+            "win_fg": "#a8e6c1",
+            "loss_bg": "#4a1e1e",
+            "loss_fg": "#f2a3a3",
+            "tie_bg": "#5c4a10",
+            "tie_fg": "#f0d898",
+            "thinking_bg": "#3c2a4a",
+            "thinking_fg": "#d4b8e8",
+            "tournament_bg": "#4a1e38",
+            "tournament_fg": "#e8b8d0",
         }
 
         set_view(self, self.harrogate_hold_em_screen)
@@ -515,7 +515,7 @@ class HarrogateHoldEm:
         frame.rowconfigure(1, weight=1)
         frame.rowconfigure(2, weight=1)
 
-        # Top-left: game info
+        # Top-left
         top_left = Frame(frame, bd=2, relief="sunken", bg=cs["top_left_bg"])
         top_left.grid(column=0, row=0, sticky="nsew", padx=5, pady=5)
 
@@ -549,7 +549,7 @@ class HarrogateHoldEm:
         if self.tournament_mode:
             self.tournament_label.pack(fill="x", padx=10, pady=4)
 
-        # Bottom-left: log
+        # Bottom-left
         bottom_left = Frame(frame, bd=2, relief="sunken", bg=cs["bottom_left_bg"])
         bottom_left.grid(column=0, row=1, rowspan=2, sticky="nsew", padx=5, pady=5)
 
@@ -579,7 +579,7 @@ class HarrogateHoldEm:
             ),
         )
 
-        # Top-right: user info
+        # Top-right
         top_right = Frame(frame, bd=2, relief="sunken", bg=cs["top_right_bg"])
         top_right.grid(row=0, column=1, sticky="nsew", padx=5, pady=5)
 
@@ -597,7 +597,7 @@ class HarrogateHoldEm:
 
         balance = 0
         if not self.user_data.get("administrator"):
-            balance_data = self.dbm.get_user_balance(self.user_data["username"])
+            balance_data = self.dbm.fetch_user_balance(self.user_data["username"])
             if not balance_data["found"]:
                 self.return_to_menu(
                     is_error=True,
@@ -629,7 +629,7 @@ class HarrogateHoldEm:
         self.current_bet_label = cast(Label, labels[2])
         self.blinds_label = cast(Label, labels[3])
 
-        # Middle-right: players list
+        # Middle-right
         mid_right = Frame(frame, bd=2, relief="sunken", bg=cs["middle_right_bg"])
         mid_right.grid(row=1, column=1, sticky="nsew", padx=5, pady=5)
         mid_right.columnconfigure(0, weight=1)
@@ -714,7 +714,7 @@ class HarrogateHoldEm:
                 fill="x", padx=8, pady=2
             )
 
-        # Bottom-right: actions
+        # Bottom-right
         bot_right = Frame(frame, bd=2, relief="sunken", bg=cs["bottom_right_bg"])
         bot_right.grid(row=2, column=1, sticky="nsew", padx=5, pady=5)
 
@@ -856,7 +856,6 @@ class HarrogateHoldEm:
         and (when in tournament mode) the tournament status banner.
         Guards safely against updating already-destroyed widgets.
         """
-        cs = self.colour_scheme
 
         if (
             not getattr(self, "balance_label", None)
@@ -876,7 +875,7 @@ class HarrogateHoldEm:
             and self.tournament_label.winfo_exists()
         ):
             if self.tournament_mode and self.tournament:
-                self.tournament_label.config(text=self.tournament.get_status_text())
+                self.tournament_label.config(text=self.tournament.fetch_status_text())
 
         if (
             not getattr(self, "round_number_label", None)
@@ -947,10 +946,11 @@ class HarrogateHoldEm:
         the current game and turn state.
 
         During the human player's turn the buttons are labelled to reflect
-        the exact call amount and minimum raise.  The Raise button is
+        the exact call amount and minimum raise. The Raise button is
         disabled when the player cannot afford the minimum raise.  All
         action buttons are disabled outside the human player's turn.
         """
+
         self.start_button.config(state="disabled" if self.round_active else "normal")
 
         if self.round_active and self.player_turn:
@@ -1025,7 +1025,7 @@ class HarrogateHoldEm:
                     player["position"] - 1 == self.current_position
                     and player["status"] == "Waiting"
                 ):
-                    pos_text += "  ◀"
+                    pos_text += "  <"
 
             Label(
                 left_f,
@@ -1127,7 +1127,7 @@ class HarrogateHoldEm:
         Args:
             player (dict): The player dictionary to modify.
             cards (list or None): If an empty list, clears the player's
-                cards.  If a non-empty list of treys card integers,
+                cards. If a non-empty list of treys card integers,
                 converts and stores them via deck.treys_other().
             change_balance (float or None): Amount to add to (positive)
                 or subtract from (negative) the player's current balance.
@@ -1135,7 +1135,7 @@ class HarrogateHoldEm:
             status (str or None): New status string to assign.
             refresh_player_model (bool): If True and the player is human,
                 reloads their poker statistics from the database and resets
-                their active range.  Defaults to False.
+                their active range. Defaults to False.
         """
         if player is None:
             return
@@ -1167,7 +1167,7 @@ class HarrogateHoldEm:
     def admin_modify_bet(self, frame):
         """
         Opens a modal Toplevel dialog that allows the administrator to set
-        a custom starting chip balance.  The dialog cannot be dismissed
+        a custom starting chip balance. The dialog cannot be dismissed
         via the window manager — a valid balance must be submitted.
 
         On submission, updates the balance label and persists the new
@@ -1211,7 +1211,7 @@ class HarrogateHoldEm:
 
         def submit_balance():
             """Validates the entry, updates the UI and database, and closes
-            the dialog.  Shows an inline error on invalid input."""
+            the dialog. Shows an inline error on invalid input."""
             try:
                 balance = int(bal_entry.get().strip())
                 if balance < 0:
@@ -1389,7 +1389,7 @@ class HarrogateHoldEm:
         Returns:
             int: The current balance, or 0 as a safe fallback.
         """
-        data = self.dbm.get_user_balance(self.user_data["username"])
+        data = self.dbm.fetch_user_balance(self.user_data["username"])
         if not data["found"]:
             self.return_to_menu(
                 is_error=True, error=Exception("User not found in database.")
@@ -1408,7 +1408,7 @@ class HarrogateHoldEm:
         Checks whether the human player's balance has reached zero.
 
         For administrators, opens the balance modification dialog so they
-        can set a new balance and continue.  For regular users, displays
+        can set a new balance and continue. For regular users, displays
         an informational message and returns them to the main menu.
 
         Args:
@@ -1422,7 +1422,7 @@ class HarrogateHoldEm:
             if self.user_data.get("administrator"):
                 messagebox.showinfo(
                     "Balance Depleted",
-                    "Your balance is £0.  As an administrator you may "
+                    "Your balance is £0. As an administrator you may "
                     "set a new balance to continue.",
                 )
                 self.admin_modify_bet(frame)
@@ -1490,7 +1490,7 @@ class HarrogateHoldEm:
 
     def check_round(self):
         """
-        Initiates a new round.  Clears any pending log entries, resets
+        Initiates a new round. Clears any pending log entries, resets
         action tracking, logs the round-start message, resets player
         states, refreshes the UI, and delegates to play_round().
         """
@@ -1507,7 +1507,7 @@ class HarrogateHoldEm:
     def blind_management(self):
         """
         Assigns small blind, big blind, and first-action positions for
-        the current round.  Skips players with 'OUT' status when
+        the current round. Skips players with 'OUT' status when
         rotating.
 
         Posts the blinds by deducting from player balances (capped at
@@ -1628,7 +1628,7 @@ class HarrogateHoldEm:
     def decisions(self):
         """
         Processes decisions for all players who still need to act on the
-        current street.  Iterates from current_position, skipping players
+        current street. Iterates from current_position, skipping players
         who have already decided, folded, or are out.
 
         For bot players, launches an asynchronous decision in a background
@@ -1673,8 +1673,8 @@ class HarrogateHoldEm:
         """
         Launches a bot's decision calculation in a background daemon thread.
         Immediately displays a 'thinking' message in the log.  Calculates a
-        difficulty-scaled minimum thinking delay (800–2 500 ms plus jitter)
-        to ensure a consistent pause regardless of actual compute time.
+        difficulty-scaled minimum thinking delay to ensure a consistent pause
+        regardless of actual compute time.
 
         Does nothing if a bot decision is already in progress.
 
@@ -1693,12 +1693,12 @@ class HarrogateHoldEm:
         min_ms = int(base_ms + jitter)
 
         threading.Thread(
-            target=self._bot_decision_worker,
+            target=self.bot_decision_worker,
             args=(player, min_ms),
             daemon=True,
         ).start()
 
-    def _bot_decision_worker(self, player, min_thinking_ms):
+    def bot_decision_worker(self, player, min_thinking_ms):
         """
         Background thread worker that computes the bot's decision and
         enforces the minimum thinking delay before placing the result (or
@@ -1759,8 +1759,8 @@ class HarrogateHoldEm:
             player (dict): The bot player dictionary.
 
         Returns:
-            tuple: One of ``("fold",)``, ``("call",)``, or
-                   ``("raise", amount)``.
+            tuple: One of '("fold",)', '("call",)', or
+                   '("raise", amount)'.
         """
         model = player["model"]
         opponents = [
@@ -1888,7 +1888,7 @@ class HarrogateHoldEm:
     def reset_after_raise(self, except_player):
         """
         Resets all active players (except the raiser) to 'Waiting' so
-        they must act again after a raise.  Sets action_position to the
+        they must act again after a raise. Sets action_position to the
         player immediately after the raiser.
 
         Args:
@@ -1904,7 +1904,7 @@ class HarrogateHoldEm:
 
     def bot_error(self, player, error):
         """
-        Handles a bot decision error gracefully.  Displays a messagebox,
+        Handles a bot decision error gracefully. Displays a messagebox,
         logs the event, and marks the bot as 'OUT'.
 
         Args:
@@ -1931,7 +1931,7 @@ class HarrogateHoldEm:
         flop → turn → river → showdown).
 
         For preflop, preserves blind 'Decided' statuses and sets action
-        to start after the big blind.  For all post-flop streets, resets
+        to start after the big blind. For all post-flop streets, resets
         all active players to 'Waiting', clears per-street bets, and
         sets action to start left of the dealer.
 
@@ -1976,7 +1976,7 @@ class HarrogateHoldEm:
 
     def advance_street(self):
         """
-        Called when all players have acted on the current street.  Logs
+        Called when all players have acted on the current street. Logs
         the street completion, checks for a single remaining active
         player (awarding the pot immediately without a showdown), and
         advances to the next street otherwise.
@@ -2089,7 +2089,7 @@ class HarrogateHoldEm:
     def update_user_poker_data(self):
         """
         Aggregates the human player's in-round action log and updates
-        their poker statistics in the database.  Derives VPIP, PFR, and
+        their poker statistics in the database. Derives VPIP, PFR, and
         faced-raise flags from actions_logged, then calls
         update_hand_statistics and resolve_player_actions.
         """
@@ -2128,7 +2128,7 @@ class HarrogateHoldEm:
                 )
                 break
 
-    # End round / tournament progression
+    # End round & tournament progression
 
     def end_round(
         self, *, win=False, loss=False, tie=False, split_pot=False, split_count=1
@@ -2145,9 +2145,9 @@ class HarrogateHoldEm:
         empties.
 
         Args:
-            win (bool): Human player won.  Defaults to False.
-            loss (bool): Human player lost.  Defaults to False.
-            tie (bool): Round ended in a tie.  Defaults to False.
+            win (bool): Human player won. Defaults to False.
+            loss (bool): Human player lost. Defaults to False.
+            tie (bool): Round ended in a tie. Defaults to False.
             split_pot (bool): Pot was split among multiple winners.
                               Defaults to False.
             split_count (int): Number of winners in a split.
@@ -2165,11 +2165,11 @@ class HarrogateHoldEm:
             else:
                 human["balance"] += self.pot_size
                 self.log_message(
-                    f"Congratulations!  You won £{self.pot_size}!", is_win=True
+                    f"Congratulations! You won £{self.pot_size}!", is_win=True
                 )
         elif loss:
             self.log_message(
-                "You lost this round.  Better luck next time.", is_loss=True
+                "You lost this round. Better luck next time.", is_loss=True
             )
         elif tie:
             self.log_message("It's a tie!", tie=True)
@@ -2225,7 +2225,7 @@ class HarrogateHoldEm:
     def finish_end_round(self):
         """
         Completes round teardown after the log queue has finished
-        rendering.  Resets the current-bet label, eliminates bots with
+        rendering. Resets the current-bet label, eliminates bots with
         zero chips, marks the human as 'OUT' if they have no chips,
         checks for game-over conditions, increments the round display
         number, and re-enables the Start Round button.
@@ -2259,7 +2259,7 @@ class HarrogateHoldEm:
 
     def check_game_over(self):
         """
-        Checks whether the game has ended.  The game ends if the human
+        Checks whether the game has ended. The game ends if the human
         player's status is 'OUT' (loss), or if all bots are 'OUT'
         (victory).
 
@@ -2285,7 +2285,7 @@ class HarrogateHoldEm:
         if len(active_bots) == 0:
             messagebox.showinfo(
                 "Victory!",
-                "Congratulations!  You have eliminated all opponents "
+                "Congratulations! You have eliminated all opponents "
                 "and won the game!",
             )
             self.return_to_menu()
@@ -2297,7 +2297,7 @@ class HarrogateHoldEm:
         """
         Destroys the game window and returns the user to the appropriate
         interface: Admin_Interface for administrators, Casino_Interface
-        (main menu) for regular users.  Optionally shows an error dialog
+        (main menu) for regular users. Optionally shows an error dialog
         before navigating.
 
         Args:
@@ -2322,7 +2322,7 @@ class HarrogateHoldEm:
 
     def fold(self):
         """
-        Handles the human player choosing to fold.  Sets their status to
+        Handles the human player choosing to fold. Sets their status to
         'Folded', logs the action to the database, advances
         current_position, and continues the decision loop.
         """
@@ -2385,7 +2385,7 @@ class HarrogateHoldEm:
         Handles the human player choosing to raise.
 
         Validates the entered amount against the minimum raise and the
-        player's available balance.  Executes the raise, resets other
+        player's available balance. Executes the raise, resets other
         players via reset_after_raise(), logs the action to the database,
         and continues the decision loop.
         """
@@ -2431,28 +2431,3 @@ class HarrogateHoldEm:
                 self.update_ui()
                 self.decisions()
                 break
-
-
-if __name__ == "__main__":
-    user_data = {
-        "username": "Administrator",
-        "user_id": 1,
-        "administrator": True,
-    }
-
-    settings = {
-        "game_type": "Casual",
-        "small_blind": 50,
-        "big_blind": 100,
-        "bot_count": 3,
-        "bot_balance": 1000,
-        "bot_difficulty": 50,
-        "tournament_mode": False,
-        "tournament_rounds": 5,
-        "tournament_players": 4,
-        "win_criteria": "eliminate_all",
-        "win_criteria_target": 1000,
-    }
-
-    hhe = HarrogateHoldEm(user_data, settings, None)
-    hhe.run()
