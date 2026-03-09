@@ -431,8 +431,8 @@ class DatabaseManagement:
 
                 database_logger.info("Administrator account added to 'users' table.")
 
-            except sqlite3.Error as e:
-                database_logger.exception(f"'create_database' error. {e}")
+            except sqlite3.Error as error:
+                database_logger.exception(f"'create_database' error. {error}")
 
     def admin_account(self):
         """
@@ -466,8 +466,8 @@ class DatabaseManagement:
 
                     database_logger.info("Administrator account created.")
 
-            except sqlite3.Error as e:
-                database_logger.exception(f"'admin_account' error. {e}")
+            except sqlite3.Error as error:
+                database_logger.exception(f"'admin_account' error. {error}")
 
     def admin_logged_in(self):
         """
@@ -516,10 +516,10 @@ class DatabaseManagement:
 
                 admin_logger.info("Administrator password change request successful.")
 
-            except sqlite3.Error as e:
+            except sqlite3.Error as error:
                 admin_logger.error("Administrator password change request failed.")
 
-                database_logger.exception(f"'change_admin_password' error. {e}")
+                database_logger.exception(f"'change_admin_password' error. {error}")
 
     def view_database(self, table):
         """
@@ -552,10 +552,10 @@ class DatabaseManagement:
 
                 return dataframe
 
-            except sqlite3.Error as e:
+            except sqlite3.Error as error:
                 admin_logger.error("View table request failed.")
 
-                database_logger.exception(f"'view_database' error. {e}")
+                database_logger.exception(f"'view_database' error. {error}")
                 return pd.DataFrame()
 
     def change_user_record(
@@ -631,10 +631,10 @@ class DatabaseManagement:
 
                 database_logger.info(f"User username changed.")
 
-            except sqlite3.Error as e:
+            except sqlite3.Error as error:
                 admin_logger.error("Change username request failed.")
 
-                database_logger.exception(f"'change_user_username' error. {e}")
+                database_logger.exception(f"'change_user_username' error. {error}")
 
     def change_user_password(self, user_id, new_password):
         """
@@ -667,10 +667,10 @@ class DatabaseManagement:
 
                 database_logger.info(f"User password changed.")
 
-            except sqlite3.Error as e:
+            except sqlite3.Error as error:
                 admin_logger.error("Change user password request failed.")
 
-                database_logger.exception(f"'change_user_password' error. {e}")
+                database_logger.exception(f"'change_user_password' error. {error}")
 
     def change_user_account_type(self, user_id, registered):
         """
@@ -704,10 +704,10 @@ class DatabaseManagement:
 
                 database_logger.info(f"User account type changed.")
 
-            except sqlite3.Error as e:
+            except sqlite3.Error as error:
                 admin_logger.error("Change user account type request failed.")
 
-                database_logger.exception(f"'change_user_account_type' error. {e}")
+                database_logger.exception(f"'change_user_account_type' error. {error}")
 
     def change_user_balance(self, user_id, new_balance):
         """
@@ -736,10 +736,10 @@ class DatabaseManagement:
 
                 database_logger.info(f"User balance changed.")
 
-            except sqlite3.Error as e:
+            except sqlite3.Error as error:
                 admin_logger.error("Change user balance request failed.")
 
-                database_logger.exception(f"'change_user_balance' error. {e}")
+                database_logger.exception(f"'change_user_balance' error. {error}")
 
     def change_user_status(self, user_id, terminated, reason=None):
         """
@@ -785,10 +785,10 @@ class DatabaseManagement:
 
                 database_logger.info(f"User status changed.")
 
-            except sqlite3.Error as e:
+            except sqlite3.Error as error:
                 admin_logger.error("Change user status request failed.")
 
-                database_logger.exception(f"'change_user_status' error. {e}")
+                database_logger.exception(f"'change_user_status' error. {error}")
 
     def delete_user_record(self, user_id):
         """
@@ -809,10 +809,10 @@ class DatabaseManagement:
 
                 database_logger.info(f"User record deleted.")
 
-            except sqlite3.Error as e:
+            except sqlite3.Error as error:
                 admin_logger.error("Delete user record request failed.")
 
-                database_logger.exception(f"'delete_user_record' error. {e}")
+                database_logger.exception(f"'delete_user_record' error. {error}")
 
     def fetch_user_full_record(self, *, user_id=None, username=None):
         """
@@ -847,8 +847,8 @@ class DatabaseManagement:
                 row = cursor.fetchone()
                 return dict(row) if row else None
 
-            except sqlite3.Error as e:
-                database_logger.exception(f"'fetch_user_full_record' error. {e}")
+            except sqlite3.Error as error:
+                database_logger.exception(f"'fetch_user_full_record' error. {error}")
                 return None
 
     def fetch_user_presence(self, username=None):
@@ -885,8 +885,8 @@ class DatabaseManagement:
 
                 return {"found": found}
 
-            except sqlite3.Error as e:
-                database_logger.exception(f"'fetch_user_presence' error. {e}")
+            except sqlite3.Error as error:
+                database_logger.exception(f"'fetch_user_presence' error. {error}")
                 return {"found": False}
 
     def sign_in_user(self, username, password, registered):
@@ -948,8 +948,8 @@ class DatabaseManagement:
                 database_logger.warning(f"User: '{username}' record already exists.")
                 raise
 
-            except sqlite3.Error as e:
-                database_logger.exception(f"'sign_in_user' error. {e}")
+            except sqlite3.Error as error:
+                database_logger.exception(f"'sign_in_user' error. {error}")
                 raise
 
     def verify_user_password(self, username, password):
@@ -981,8 +981,8 @@ class DatabaseManagement:
 
                 row = cursor.fetchone()
 
-            except sqlite3.Error as e:
-                database_logger.exception(f"'verify_user_password' error. {e}")
+            except sqlite3.Error as error:
+                database_logger.exception(f"'verify_user_password' error. {error}")
                 return {"found": False, "verified": False}
 
         if not row or not row["password_hash"]:
@@ -1026,8 +1026,8 @@ class DatabaseManagement:
 
                 database_logger.info(f"Password for User reset successfully.")
 
-            except sqlite3.Error as e:
-                database_logger.exception(f"'reset_user_password' error. {e}")
+            except sqlite3.Error as error:
+                database_logger.exception(f"'reset_user_password' error. {error}")
 
     def fetch_user_id(self, username):
         """
@@ -1061,8 +1061,8 @@ class DatabaseManagement:
                     database_logger.info(f"User 'user_id' not found.")
                     return {"found": False, "user_id": None}
 
-            except sqlite3.Error as e:
-                database_logger.exception(f"'fetch_user_id' error. {e}")
+            except sqlite3.Error as error:
+                database_logger.exception(f"'fetch_user_id' error. {error}")
                 return {"found": False, "user_id": None}
 
     def fetch_username(self, user_id):
@@ -1097,8 +1097,8 @@ class DatabaseManagement:
                     database_logger.info(f"User 'username' not found.")
                     return {"found": False, "username": None}
 
-            except sqlite3.Error as e:
-                database_logger.exception(f"'fetch_username' error. {e}")
+            except sqlite3.Error as error:
+                database_logger.exception(f"'fetch_username' error. {error}")
                 return {"found": False, "username": None}
 
     def fetch_user_balance(self, username):
@@ -1134,8 +1134,8 @@ class DatabaseManagement:
                     database_logger.info(f"User 'balance' not found.")
                     return {"found": False, "balance": 0.0}
 
-            except sqlite3.Error as e:
-                database_logger.exception(f"'fetch_user_balance' error. {e}")
+            except sqlite3.Error as error:
+                database_logger.exception(f"'fetch_user_balance' error. {error}")
                 return {"found": False, "balance": 0.0}
 
     def modify_user_balance(self, username, new_balance):
@@ -1162,8 +1162,8 @@ class DatabaseManagement:
                 database_logger.info(f"User balance modified.")
                 return
 
-            except sqlite3.Error as e:
-                database_logger.exception(f"'modify_user_balance' error. {e}")
+            except sqlite3.Error as error:
+                database_logger.exception(f"'modify_user_balance' error. {error}")
 
     def terminate_user_account(self, username, reason):
         """
@@ -1194,8 +1194,8 @@ class DatabaseManagement:
                 database_logger.info(f"User account terminated.")
                 return
 
-            except sqlite3.Error as e:
-                database_logger.exception(f"'terminate_user_account' error. {e}")
+            except sqlite3.Error as error:
+                database_logger.exception(f"'terminate_user_account' error. {error}")
 
     def admin_password_check(self, password):
         """
@@ -1223,8 +1223,8 @@ class DatabaseManagement:
 
                 row = cursor.fetchone()
 
-            except sqlite3.Error as e:
-                database_logger.exception(f"'admin_password_check' error. {e}")
+            except sqlite3.Error as error:
+                database_logger.exception(f"'admin_password_check' error. {error}")
                 return {"found": False, "verified": False}
 
         if not row or not row["password_hash"]:
@@ -1269,8 +1269,8 @@ class DatabaseManagement:
 
                 return exists is not None
 
-            except sqlite3.Error as e:
-                database_logger.exception(f"'check_user_poker_data_exists' error. {e}")
+            except sqlite3.Error as error:
+                database_logger.exception(f"'check_user_poker_data_exists' error. {error}")
                 return False
 
     def initialise_user_poker_data(self, user_id):
@@ -1324,8 +1324,8 @@ class DatabaseManagement:
                 database_logger.info(f"User poker data initialised.")
                 return True
 
-            except sqlite3.Error as e:
-                database_logger.exception(f"'initialise_user_poker_data' error. {e}")
+            except sqlite3.Error as error:
+                database_logger.exception(f"'initialise_user_poker_data' error. {error}")
                 return False
 
     def load_user_poker_data(self, user_id):
@@ -1347,7 +1347,7 @@ class DatabaseManagement:
             try:
                 database_logger.info(f"Loading poker data for User ID: '{user_id}'.")
 
-                # Get user data with poker stats
+                # Get user data with poker statistics
                 row = conn.execute(
                     """
                     SELECT
@@ -1386,7 +1386,7 @@ class DatabaseManagement:
                 rounds = max(1, record["rounds_played"])
                 record["avg_bet_size"] = record["total_bets"] / rounds
 
-                # Normalize fold_to_raise and call_when_weak to 0.0-1.0
+                # Normalise fold_to_raise and call_when_weak to 0.0-1.0
                 # These are stored as counts, convert to frequencies
                 total_pressure_situations = (
                     record["fold_to_raise"] + record["call_when_weak"]
@@ -1409,11 +1409,11 @@ class DatabaseManagement:
 
                 return record
 
-            except sqlite3.Error as e:
-                database_logger.exception(f"'load_user_poker_data' error. {e}")
+            except sqlite3.Error as error:
+                database_logger.exception(f"'load_user_poker_data' error. {error}")
                 return None
-            except json.JSONDecodeError as e:
-                database_logger.exception(f"'load_user_poker_data' error. {e}")
+            except json.JSONDecodeError as error:
+                database_logger.exception(f"'load_user_poker_data' error. {error}")
                 return None
 
     def update_player_range(self, user_id, player_range):
@@ -1449,8 +1449,8 @@ class DatabaseManagement:
 
                 return True
 
-            except (sqlite3.Error, json.JSONDecodeError) as e:
-                database_logger.exception(f"'update_player_range' error. {e}")
+            except (sqlite3.Error, json.JSONDecodeError) as error:
+                database_logger.exception(f"'update_player_range' error. {error}")
                 return False
 
     def log_player_action(
@@ -1501,8 +1501,8 @@ class DatabaseManagement:
 
                 return True
 
-            except sqlite3.Error as e:
-                database_logger.exception(f"'log_player_action' error. {e}")
+            except sqlite3.Error as error:
+                database_logger.exception(f"'log_player_action' error. {error}")
                 return False
 
     def fetch_unresolved_player_actions(self, user_id):
@@ -1547,9 +1547,9 @@ class DatabaseManagement:
 
                 return [dict(r) for r in rows]
 
-            except sqlite3.Error as e:
+            except sqlite3.Error as error:
                 database_logger.exception(
-                    f"'fetch_unresolved_player_actions' error. {e}"
+                    f"'fetch_unresolved_player_actions' error. {error}"
                 )
                 return []
 
@@ -1583,8 +1583,8 @@ class DatabaseManagement:
 
                 return True
 
-            except sqlite3.Error as e:
-                database_logger.exception(f"'resolve_player_actions' error. {e}")
+            except sqlite3.Error as error:
+                database_logger.exception(f"'resolve_player_actions' error. {error}")
                 return False
 
     def update_hand_statistics(
@@ -1653,8 +1653,8 @@ class DatabaseManagement:
 
                 return True
 
-            except sqlite3.Error as e:
-                database_logger.exception(f"'update_hand_statistics' error. {e}")
+            except sqlite3.Error as error:
+                database_logger.exception(f"'update_hand_statistics' error. {error}")
                 return False
 
     def recalculate_frequencies(self, conn: sqlite3.Connection, user_id: int):
@@ -1699,8 +1699,8 @@ class DatabaseManagement:
 
             database_logger.info(f"User frequencies recalculated.")
 
-        except sqlite3.Error as e:
-            database_logger.exception(f"'recalculate_frequencies' error. {e}")
+        except sqlite3.Error as error:
+            database_logger.exception(f"'recalculate_frequencies' error. {error}")
 
     def fetch_player_statistics(self, user_id):
         """
@@ -1738,18 +1738,18 @@ class DatabaseManagement:
                 if not row:
                     return None
 
-                stats = dict(row)
+                statistics = dict(row)
 
-                # Calculate derived stats
-                rounds = max(1, stats["rounds_played"])
-                stats["avg_bet_size"] = stats["total_bets"] / rounds
+                # Calculate derived statistics
+                rounds = max(1, statistics["rounds_played"])
+                statistics["avg_bet_size"] = statistics["total_bets"] / rounds
 
                 database_logger.info(f"User player statistics fetched.")
 
-                return stats
+                return statistics
 
-            except sqlite3.Error as e:
-                database_logger.exception(f"'fetch_player_statistics' error. {e}")
+            except sqlite3.Error as error:
+                database_logger.exception(f"'fetch_player_statistics' error. {error}")
                 return None
 
     def fetch_hand_history(self, user_id, limit=50, resolved_only=True):
@@ -1795,8 +1795,8 @@ class DatabaseManagement:
 
                 return [dict(r) for r in rows]
 
-            except sqlite3.Error as e:
-                database_logger.exception(f"'fetch_hand_history' error. {e}")
+            except sqlite3.Error as error:
+                database_logger.exception(f"'fetch_hand_history' error. {error}")
                 return []
 
     def fetch_all_players_data(self):
@@ -1835,8 +1835,8 @@ class DatabaseManagement:
 
                 return players
 
-            except sqlite3.Error as e:
-                database_logger.exception(f"'fetch_all_players_data' error. {e}")
+            except sqlite3.Error as error:
+                database_logger.exception(f"'fetch_all_players_data' error. {error}")
                 return []
 
     def reset_player_statistics(self, user_id, keep_range=True):
@@ -1898,8 +1898,8 @@ class DatabaseManagement:
                 database_logger.info(f"User statistics reset.")
                 return True
 
-            except sqlite3.Error as e:
-                database_logger.exception(f"'reset_player_statistics' error. {e}")
+            except sqlite3.Error as error:
+                database_logger.exception(f"'reset_player_statistics' error. {error}")
                 return False
 
     def fetch_special_mode_scores(self, user_id):
@@ -1942,8 +1942,8 @@ class DatabaseManagement:
                     "endless_high_score": int(row["endless_high_score"] or 0),
                 }
 
-            except sqlite3.Error as e:
-                database_logger.exception(f"'fetch_special_mode_scores' error. {e}")
+            except sqlite3.Error as error:
+                database_logger.exception(f"'fetch_special_mode_scores' error. {error}")
                 return None
 
     def update_special_mode_score(self, user_id, column, new_score):
@@ -1983,8 +1983,8 @@ class DatabaseManagement:
                 database_logger.info(f"Updated {column} to {new_score}")
                 return True
 
-            except sqlite3.Error as e:
-                database_logger.exception(f"'update_special_mode_score' error. {e}")
+            except sqlite3.Error as error:
+                database_logger.exception(f"'update_special_mode_score' error. {error}")
                 return False
 
 
@@ -2156,19 +2156,19 @@ class Encryption_Software:
 
             public_path = os.path.join(save_dir, f"public_key_{timestamp}.pem")
 
-            with open(private_path, "wb") as f:
-                f.write(private_key)
+            with open(private_path, "wb") as file:
+                file.write(private_key)
 
-            with open(public_path, "wb") as f:
-                f.write(public_key)
+            with open(public_path, "wb") as file:
+                file.write(public_key)
 
             messagebox.showinfo(
                 "Success",
                 f"RSA keys generated and saved:\n{private_path}\n{public_path}",
             )
 
-        except Exception as e:
-            messagebox.showerror("Error", f"Failed to generate RSA keys: {e}")
+        except Exception as error:
+            messagebox.showerror("Error", f"Failed to generate RSA keys: {error}")
 
     def generate_encrypted_aes_key(self):
         """
@@ -2195,8 +2195,8 @@ class Encryption_Software:
         try:
             aes_key = get_random_bytes(32)
 
-            with open(rsa_pub_file, "rb") as f:
-                public_key = RSA.import_key(f.read())
+            with open(rsa_pub_file, "rb") as file:
+                public_key = RSA.import_key(file.read())
 
             cipher_rsa = PKCS1_OAEP.new(public_key)
 
@@ -2206,13 +2206,13 @@ class Encryption_Software:
 
             save_path = os.path.join(save_dir, f"aes_key_{timestamp}.bin")
 
-            with open(save_path, "wb") as f:
-                f.write(encrypted_aes)
+            with open(save_path, "wb") as file:
+                file.write(encrypted_aes)
 
             messagebox.showinfo("Success", f"Encrypted AES key saved to:\n{save_path}")
 
-        except Exception as e:
-            messagebox.showerror("Error", f"Failed to generate/encrypt AES key: {e}")
+        except Exception as error:
+            messagebox.showerror("Error", f"Failed to generate/encrypt AES key: {error}")
 
     def load_rsa_aes_key(self):
         """
@@ -2238,11 +2238,11 @@ class Encryption_Software:
             return
 
         try:
-            with open(rsa_private_file, "rb") as f:
-                private_key = RSA.import_key(f.read())
+            with open(rsa_private_file, "rb") as file:
+                private_key = RSA.import_key(file.read())
 
-            with open(encrypted_aes_file, "rb") as f:
-                encrypted_aes = f.read()
+            with open(encrypted_aes_file, "rb") as file:
+                encrypted_aes = file.read()
 
             cipher_rsa = PKCS1_OAEP.new(private_key)
 
@@ -2250,8 +2250,8 @@ class Encryption_Software:
 
             messagebox.showinfo("Success", "AES key loaded successfully.")
 
-        except Exception as e:
-            messagebox.showerror("Error", f"Failed to load AES key: {e}")
+        except Exception as error:
+            messagebox.showerror("Error", f"Failed to load AES key: {error}")
 
     def encrypt_file(self):
         """
@@ -2275,8 +2275,8 @@ class Encryption_Software:
             return
 
         try:
-            with open(file_path, "rb") as f:
-                data = f.read()
+            with open(file_path, "rb") as file:
+                data = file.read()
 
             cipher = AES.new(self.aes_key, AES.MODE_EAX)
 
@@ -2284,17 +2284,17 @@ class Encryption_Software:
 
             save_path = file_path + ".enc"
 
-            with open(save_path, "wb") as f:
-                f.write(cipher.nonce)
-                f.write(tag)
-                f.write(ciphertext)
+            with open(save_path, "wb") as file:
+                file.write(cipher.nonce)
+                file.write(tag)
+                file.write(ciphertext)
 
             messagebox.showinfo(
                 "Success", f"Database encrypted and saved to:\n{save_path}"
             )
 
-        except Exception as e:
-            messagebox.showerror("Error", f"Encryption failed: {e}")
+        except Exception as error:
+            messagebox.showerror("Error", f"Encryption failed: {error}")
 
     def decrypt_file(self):
         """
@@ -2320,10 +2320,10 @@ class Encryption_Software:
             return
 
         try:
-            with open(file_path, "rb") as f:
-                nonce = f.read(16)
-                tag = f.read(16)
-                ciphertext = f.read()
+            with open(file_path, "rb") as file:
+                nonce = file.read(16)
+                tag = file.read(16)
+                ciphertext = file.read()
 
             cipher = AES.new(self.aes_key, AES.MODE_EAX, nonce=nonce)
 
@@ -2333,15 +2333,15 @@ class Encryption_Software:
                 file_path[:-4] if file_path.endswith(".enc") else file_path + ".dec"
             )
 
-            with open(save_path, "wb") as f:
-                f.write(data)
+            with open(save_path, "wb") as file:
+                file.write(data)
 
             messagebox.showinfo(
                 "Success", f"Database decrypted and saved to:\n{save_path}"
             )
 
-        except Exception as e:
-            messagebox.showerror("Error", f"Decryption failed: {e}")
+        except Exception as error:
+            messagebox.showerror("Error", f"Decryption failed: {error}")
 
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -2437,23 +2437,20 @@ def passwords_confirmation(frame, root):
     # Default return state
     password = {"confirmed": False, "password": None}
 
-    pwd_window = Toplevel(frame)
-    pwd_window.title("Confirm Password")
+    password_window = Toplevel(frame)
+    password_window.title("Confirm Password")
 
-    pwd_window.protocol("WM_DELETE_WINDOW", lambda: None)
+    password_window.protocol("WM_DELETE_WINDOW", lambda: None)
 
-    Label(pwd_window, text="Enter password:", font=styles["text"]).pack(pady=5)
+    Label(password_window, text="Enter password:", font=styles["text"]).pack(pady=5)
 
-    pwd_entry_1 = Entry(pwd_window, show="*", width=30, font=styles["text"])
-    pwd_entry_1.pack(pady=5)
+    password_entry_1 = Entry(password_window, show="*", width=30, font=styles["text"])
+    password_entry_1.pack(pady=5)
 
-    Label(pwd_window, text="Confirm password:", font=styles["text"]).pack(pady=5)
+    Label(password_window, text="Confirm password:", font=styles["text"]).pack(pady=5)
 
-    pwd_entry_2 = Entry(pwd_window, show="*", width=30, font=styles["text"])
-    pwd_entry_2.pack(pady=5)
-
-    error_label = Label(pwd_window, text="", font=styles["emphasis"], fg="red")
-    error_label.pack(pady=5)
+    password_entry_2 = Entry(password_window, show="*", width=30, font=styles["text"])
+    password_entry_2.pack(pady=5)
 
     def validate_passwords():
         """
@@ -2461,24 +2458,25 @@ def passwords_confirmation(frame, root):
         On success, updates the shared password dict and closes the dialog.
         On failure, displays an error message inside the dialog.
         """
-        password_1 = pwd_entry_1.get().strip()
-        password_2 = pwd_entry_2.get().strip()
+        password_1 = password_entry_1.get().strip()
+        password_2 = password_entry_2.get().strip()
 
         if password_1 and password_1 == password_2:
             password["confirmed"] = True
             password["password"] = password_1
-            pwd_window.destroy()
+            password_window.destroy()
         else:
-            error_label.config(text="Passwords do not match or are empty.")
+            # Show an error message if passwords do not match or are empty, then clear the entry fields for another attempt.
+            messagebox.showerror("Error", "Passwords do not match or are empty. Please try again.", parent=password_window)
 
     def cancel_password():
         """
         Closes the password dialog without confirming, leaving the shared
         password dict in its default unconfirmed state.
         """
-        pwd_window.destroy()
+        password_window.destroy()
 
-    button = Frame(pwd_window)
+    button = Frame(password_window)
     button.pack(pady=10)
 
     Button(
@@ -2489,7 +2487,7 @@ def passwords_confirmation(frame, root):
         side="left", padx=5
     )
 
-    root.wait_window(pwd_window)
+    root.wait_window(password_window)
 
     return password
 
@@ -2779,8 +2777,8 @@ class Admin_Console:
                     )
                     set_view(self, self.show_console_menu)
 
-            except Exception as e:
-                messagebox.showerror("Error", f": {e}")
+            except Exception as error:
+                messagebox.showerror("Error", f": {error}")
         else:
             messagebox.showinfo("Cancelled", "Password change cancelled.")
             set_view(self, self.show_console_menu)
@@ -2847,8 +2845,8 @@ class Admin_Console:
                         "Error", "Incorrect password. Operation cancelled."
                     )
 
-            except Exception as e:
-                messagebox.showerror("Error", f"Failed to create '{self.DB_FILE}': {e}")
+            except Exception as error:
+                messagebox.showerror("Error", f"Failed to create '{self.DB_FILE}': {error}")
 
     def delete_database(self):
         """
@@ -2882,8 +2880,8 @@ class Admin_Console:
                         "Error", "Incorrect password. Operation cancelled."
                     )
 
-            except Exception as e:
-                messagebox.showerror("Error", f"Failed to delete '{self.DB_FILE}': {e}")
+            except Exception as error:
+                messagebox.showerror("Error", f"Failed to delete '{self.DB_FILE}': {error}")
 
     def show_view_database(self, frame):
         """
@@ -2995,8 +2993,9 @@ class Admin_Console:
             )
             tree.column(column, width=max_width, anchor="w")
 
-        for i, (_, row) in enumerate(dataframe.iterrows()):
-            tag = "evenrow" if i % 2 == 0 else "oddrow"
+        # Insert rows with alternating tags for styling, the '_' character is used to prevent issues with special characters in the data interfering with tag assignment.
+        for count, (_, row) in enumerate(dataframe.iterrows()):
+            tag = "evenrow" if count % 2 == 0 else "oddrow"
             tree.insert("", "end", values=list(row), tags=(tag,))
         tree.tag_configure("evenrow", background="#a50b5e")
         tree.tag_configure("oddrow", background="#feb29c")
@@ -4034,8 +4033,8 @@ class Casino_Interface:
             return 0
 
         try:
-            stats = self.dbm.fetch_player_statistics(user_id)
-            return int(stats["rounds_played"]) if stats else 0
+            statistics = self.dbm.fetch_player_statistics(user_id)
+            return int(statistics["rounds_played"]) if statistics else 0
         except Exception:
             return 0
 
@@ -4074,11 +4073,11 @@ class Casino_Interface:
             return 0, 0
 
         try:
-            stats = self.dbm.fetch_player_statistics(user_id)
-            if not stats:
+            statistics = self.dbm.fetch_player_statistics(user_id)
+            if not statistics:
                 return 0, 0
-            gauntlet_pb = int(stats.get("gauntlet_max_rounds", 0))
-            endless_pb = int(stats.get("endless_high_score", 0))
+            gauntlet_pb = int(statistics.get("gauntlet_max_rounds", 0))
+            endless_pb = int(statistics.get("endless_high_score", 0))
             return gauntlet_pb, endless_pb
         except Exception:
             return 0, 0
@@ -4152,10 +4151,10 @@ class Casino_Interface:
         ).pack(pady=5)
 
         # Account information
-        acct_text = "Account Information" if linked else "Sign in to access user info"
+        account_text = "Account Information" if linked else "Sign in to access user info"
         Button(
             frame,
-            text=acct_text,
+            text=account_text,
             font=self.styles["button"],
             width=30,
             state="normal" if linked else "disabled",
@@ -4243,7 +4242,7 @@ class Casino_Interface:
             "please visit: https://www.legislation.gov.uk/ukpga/2005/19/contents.\n\n"
             "By proceeding you confirm that you are over the age of 18.",
         )
-        set_view(self, lambda f: self.username_input(f, is_register=True))
+        set_view(self, lambda f: self.username_input(f, registered=True))
 
     def user_login_setup(self):
         """
@@ -4260,15 +4259,15 @@ class Casino_Interface:
                 self.user_data["administrator"] = False
             else:
                 return
-        set_view(self, lambda f: self.username_input(f, is_register=False))
+        set_view(self, lambda f: self.username_input(f, registered=False))
 
-    def username_input(self, frame, is_register):
+    def username_input(self, frame, registered):
         """
         Displays a username input form used for both registration and login.
 
         Args:
             frame (Frame): The parent frame to build the view into.
-            is_register (bool): If True, validates uniqueness for registration.
+            registered (bool): If True, validates uniqueness for registration.
         """
         Label(
             frame,
@@ -4294,11 +4293,11 @@ class Casino_Interface:
                 )
                 return
 
-            if is_register and self.dbm.fetch_user_presence(username).get("found"):
+            if registered and self.dbm.fetch_user_presence(username).get("found"):
                 messagebox.showerror("Error", "Username already exists.")
                 return
 
-            if is_register:
+            if registered:
                 set_view(self, lambda f: self.set_account_type(f, username))
             else:
                 set_view(self, lambda f: self.user_login(f, username))
@@ -4387,7 +4386,7 @@ class Casino_Interface:
         """
         if not self.dbm.fetch_user_presence(username).get("found"):
             messagebox.showerror("Error", f"Username '{username}' does not exist.")
-            set_view(self, lambda f: self.username_input(f, is_register=False))
+            set_view(self, lambda f: self.username_input(f, registered=False))
             return
 
         Label(
@@ -4398,12 +4397,12 @@ class Casino_Interface:
 
         Label(frame, text="Enter Password:", font=self.styles["text"]).pack(pady=5)
 
-        pwd_entry = Entry(frame, show="*", font=self.styles["text"])
-        pwd_entry.pack(pady=5)
+        password_entry = Entry(frame, show="*", font=self.styles["text"])
+        password_entry.pack(pady=5)
 
         def submit_password():
             """Verifies the password and navigates accordingly."""
-            password = pwd_entry.get().strip()
+            password = password_entry.get().strip()
             result = self.dbm.verify_user_password(username, password)
 
             if result.get("found") and result.get("verified"):
@@ -4416,12 +4415,12 @@ class Casino_Interface:
 
             elif result.get("found") and not result.get("verified"):
                 messagebox.showerror("Error", "Incorrect password.")
-                pwd_entry.delete(0, "end")
-                set_view(self, lambda f: self.username_input(f, is_register=False))
+                password_entry.delete(0, "end")
+                set_view(self, lambda f: self.username_input(f, registered=False))
 
             else:
                 messagebox.showerror("Error", "Username not found or login failed.")
-                set_view(self, lambda f: self.username_input(f, is_register=False))
+                set_view(self, lambda f: self.username_input(f, registered=False))
 
         Button(
             frame,
@@ -4474,7 +4473,7 @@ class Casino_Interface:
             font=self.styles["heading"],
         ).pack(pady=10)
 
-        for key, value in [
+        for label, value in [
             ("Username", record["username"]),
             ("Account Type", "Registered" if record["registered"] else "Guest"),
             ("Balance", record["balance"]),
@@ -4491,7 +4490,7 @@ class Casino_Interface:
         ]:
             Label(
                 frame,
-                text=f"{key}: {value}",
+                text=f"{label}: {value}",
                 font=self.styles["text"],
                 anchor="w",
             ).pack(fill="x", padx=20, pady=2)
@@ -4567,16 +4566,16 @@ class Casino_Interface:
         scrollbar.pack(side="right", fill="y")
         canvas.pack(side="left", fill="both", expand=True)
 
-        inner = Frame(canvas)
-        win_id = canvas.create_window((0, 0), window=inner, anchor="nw")
+        inner_frame = Frame(canvas)
+        window_id = canvas.create_window((0, 0), window=inner_frame, anchor="nw")
 
-        inner.bind(
+        inner_frame.bind(
             "<Configure>",
             lambda e: canvas.configure(scrollregion=canvas.bbox("all")),
         )
         canvas.bind(
             "<Configure>",
-            lambda e: canvas.itemconfig(win_id, width=e.width),
+            lambda e: canvas.itemconfig(window_id, width=e.width),
         )
 
         # Layout helpers
@@ -4584,28 +4583,28 @@ class Casino_Interface:
         def section_label(text, colour="#555555"):
             """Displays a coloured section header with a divider line."""
             Label(
-                inner,
+                inner_frame,
                 text=text,
                 font=self.styles["subheading"],
                 anchor="w",
                 pady=5,
             ).pack(fill="x", padx=20, pady=(14, 0))
-            Frame(inner, height=2, bg=colour).pack(fill="x", padx=20, pady=(0, 4))
+            Frame(inner_frame, height=2, bg=colour).pack(fill="x", padx=20, pady=(0, 4))
 
         def row(label_text, widget_factory):
             """Creates a label + widget pair on a single row."""
-            r = Frame(inner)
-            r.pack(fill="x", padx=20, pady=3)
+            row = Frame(inner_frame)
+            row.pack(fill="x", padx=20, pady=3)
             Label(
-                r,
+                row,
                 text=label_text,
                 font=self.styles["text"],
                 width=30,
                 anchor="w",
             ).pack(side="left")
-            w = widget_factory(r)
-            w.pack(side="left", padx=10)
-            return w
+            widget = widget_factory(row)
+            widget.pack(side="left", padx=10)
+            return widget
 
         def mode_card(
             parent,
@@ -4692,8 +4691,8 @@ class Casino_Interface:
         v_bot_diff = IntVar(value=self.settings["bot_difficulty"])
 
         v_tournament = BooleanVar(value=self.settings["tournament_mode"])
-        v_t_rounds = IntVar(value=self.settings["tournament_rounds"])
-        v_t_players = IntVar(value=self.settings["tournament_players"])
+        v_total_rounds = IntVar(value=self.settings["tournament_rounds"])
+        v_total_players = IntVar(value=self.settings["tournament_players"])
         v_win_criteria = StringVar(value=self.settings["win_criteria"])
         v_win_target = StringVar(value=str(self.settings["win_criteria_target"]))
 
@@ -4750,7 +4749,7 @@ class Casino_Interface:
             )
 
         mode_card(
-            inner,
+            inner_frame,
             bg_colour="#e8f3fa",
             border_colour="#4a7a9b",
             title_text="Table Settings",
@@ -4789,7 +4788,7 @@ class Casino_Interface:
             ).pack(anchor="w", pady=4)
 
         mode_card(
-            inner,
+            inner_frame,
             bg_colour="#e8f3fa",
             border_colour="#4a7a9b",
             title_text="Bot Difficulty  (Standard Mode)",
@@ -4859,7 +4858,7 @@ class Casino_Interface:
                         p,
                         from_=1,
                         to=50,
-                        textvariable=v_t_rounds,
+                        textvariable=v_total_rounds,
                         width=6,
                         font=self.styles["text"],
                     ),
@@ -4871,7 +4870,7 @@ class Casino_Interface:
                         p,
                         from_=2,
                         to=10,
-                        textvariable=v_t_players,
+                        textvariable=v_total_players,
                         width=6,
                         font=self.styles["text"],
                     ),
@@ -4936,7 +4935,7 @@ class Casino_Interface:
                     target_frame.pack(fill="x", padx=20, pady=4)
 
         mode_card(
-            inner,
+            inner_frame,
             bg_colour="#f4e8ff",
             border_colour="#7b68ee",
             title_text="Tournament Mode",
@@ -4953,20 +4952,19 @@ class Casino_Interface:
         def ramp_preview_text(start_diff):
             """Returns a formatted ramp schedule string for display."""
             lines = []
-            d = max(0, min(90, start_diff))
-            prev_round = 1
+            difference = max(0, min(90, start_diff))
             for interval in range(9):
-                rnd_start = interval * GAUNTLET_RAMP_INTERVAL + 1
-                rnd_end = rnd_start + GAUNTLET_RAMP_INTERVAL - 1
-                diff_val = min(100, d + interval * GAUNTLET_DIFFICULTY_STEP)
+                random_start = interval * GAUNTLET_RAMP_INTERVAL + 1
+                random_end = random_start + GAUNTLET_RAMP_INTERVAL - 1
+                diff_val = min(100, difference + interval * GAUNTLET_DIFFICULTY_STEP)
                 if diff_val > 100:
                     break
                 lines.append(
-                    f"Rounds {rnd_start:>2}–{rnd_end:<2}  →  Difficulty {diff_val}"
+                    f"Rounds {random_start:>2}–{random_end:<2}  →  Difficulty {diff_val}"
                 )
                 if diff_val == 100:
                     lines.append(
-                        f"Round  {rnd_end + 1}+      →  Difficulty 100  (maximum)"
+                        f"Round  {random_end + 1}+      →  Difficulty 100  (maximum)"
                     )
                     break
             return "\n".join(lines)
@@ -5077,14 +5075,14 @@ class Casino_Interface:
 
         def launch_gauntlet():
             """Saves starting difficulty and launches Gauntlet Mode."""
-            sd = max(0, min(90, int(v_gauntlet_diff.get())))
-            self.settings["gauntlet_start_difficulty"] = sd
+            starting_diff = max(0, min(90, int(v_gauntlet_diff.get())))
+            self.settings["gauntlet_start_difficulty"] = starting_diff
             self.settings["gauntlet_mode"] = True
             self.settings["endless_mode"] = False
-            self.start_gauntlet(sd)
+            self.start_gauntlet(starting_diff)
 
         mode_card(
-            inner,
+            inner_frame,
             bg_colour="#2a1810",
             border_colour="#b85c38",
             title_text="⚔  Gauntlet Mode",
@@ -5118,7 +5116,7 @@ class Casino_Interface:
             ).pack(fill="x", pady=(0, 6))
 
             # High-score badge
-            hs_text = (
+            high_score_text = (
                 f"High score:  {endless_pb} round"
                 f"{'s' if endless_pb != 1 else ''} survived"
                 if endless_pb > 0
@@ -5126,7 +5124,7 @@ class Casino_Interface:
             )
             Label(
                 body,
-                text=hs_text,
+                text=high_score_text,
                 font=self.styles["emphasis"],
                 anchor="w",
                 bg="#0e2018",
@@ -5137,14 +5135,14 @@ class Casino_Interface:
             stats_frame = Frame(body, bg="#0e2018")
             stats_frame.pack(fill="x", pady=(0, 4))
 
-            for stat_text in (
+            for stats_text in (
                 f"Opponents:  {ENDLESS_BOT_COUNT} bots",
                 "Difficulties:  0–100 random",
                 "Win condition:  none",
             ):
                 Label(
                     stats_frame,
-                    text=f"  •  {stat_text}",
+                    text=f"  •  {stats_text}",
                     font=self.styles["text"],
                     bg="#0e2018",
                     fg="#80c898",
@@ -5158,7 +5156,7 @@ class Casino_Interface:
             self.start_endless()
 
         mode_card(
-            inner,
+            inner_frame,
             bg_colour="#0e2018",
             border_colour="#2e6b4f",
             title_text="∞  Endless Mode",
@@ -5172,7 +5170,7 @@ class Casino_Interface:
         section_label("Notes", "#666666")
 
         Label(
-            inner,
+            inner_frame,
             text=(
                 "- Standard Mode uses the Table Settings and Bot Difficulty above.\n"
                 "- Blind escalation in Tournament: see win criteria for escalation rules.\n"
@@ -5197,63 +5195,63 @@ class Casino_Interface:
             errors = []
 
             try:
-                bc = int(v_bot_count.get())
-                assert 1 <= bc <= 9
+                bot_count = int(v_bot_count.get())
+                assert 1 <= bot_count <= 9
             except Exception:
                 errors.append("Bot count must be between 1 and 9.")
-                bc = self.settings["bot_count"]
+                bot_count = self.settings["bot_count"]
 
             try:
-                bb_val = int(v_bot_balance.get())
-                assert bb_val > 0
+                bot_balance = int(v_bot_balance.get())
+                assert bot_balance > 0
             except Exception:
                 errors.append("Bot balance must be a positive integer.")
-                bb_val = self.settings["bot_balance"]
+                bot_balance = self.settings["bot_balance"]
 
             try:
-                sb = int(v_small_blind.get())
-                assert sb > 0
+                small_blind = int(v_small_blind.get())
+                assert small_blind > 0
             except Exception:
                 errors.append("Small blind must be a positive integer.")
-                sb = self.settings["small_blind"]
+                small_blind = self.settings["small_blind"]
 
             try:
-                bigb = int(v_big_blind.get())
-                assert bigb >= sb
+                big_blind = int(v_big_blind.get())
+                assert big_blind >= small_blind
             except Exception:
                 errors.append("Big blind must be ≥ small blind.")
-                bigb = self.settings["big_blind"]
+                big_blind = self.settings["big_blind"]
 
             try:
-                diff = max(0, min(100, int(v_bot_diff.get())))
+                difference = max(0, min(100, int(v_bot_diff.get())))
             except Exception:
-                diff = self.settings["bot_difficulty"]
+                difference = self.settings["bot_difficulty"]
 
             try:
-                t_rounds = int(v_t_rounds.get())
-                assert t_rounds >= 1
+                total_rounds = int(v_total_rounds.get())
+                assert total_rounds >= 1
             except Exception:
                 errors.append("Tournament rounds must be ≥ 1.")
-                t_rounds = self.settings["tournament_rounds"]
+                total_rounds = self.settings["tournament_rounds"]
 
             try:
-                t_players = int(v_t_players.get())
-                assert 2 <= t_players <= 10
+                total_players = int(v_total_players.get())
+                assert 2 <= total_players <= 10
             except Exception:
                 errors.append("Tournament players must be between 2 and 10.")
-                t_players = self.settings["tournament_players"]
+                total_players = self.settings["tournament_players"]
 
             try:
-                w_target = int(v_win_target.get())
-                assert w_target > 0
+                win_target = int(v_win_target.get())
+                assert win_target > 0
             except Exception:
                 errors.append("Win target must be a positive integer.")
-                w_target = self.settings["win_criteria_target"]
+                win_target = self.settings["win_criteria_target"]
 
             try:
-                g_start = max(0, min(90, int(v_gauntlet_diff.get())))
+                gaunt_start_diff = max(0, min(90, int(v_gauntlet_diff.get())))
             except Exception:
-                g_start = self.settings.get(
+                gaunt_start_diff = self.settings.get(
                     "gauntlet_start_difficulty", GAUNTLET_START_DIFFICULTY
                 )
 
@@ -5268,17 +5266,17 @@ class Casino_Interface:
 
             self.settings.update(
                 {
-                    "bot_count": bc,
-                    "bot_balance": bb_val,
-                    "small_blind": sb,
-                    "big_blind": bigb,
-                    "bot_difficulty": diff,
+                    "bot_count": bot_count,
+                    "bot_balance": bot_balance,
+                    "small_blind": small_blind,
+                    "big_blind": big_blind,
+                    "bot_difficulty": difference,
                     "tournament_mode": tournament_on,
-                    "tournament_rounds": t_rounds,
-                    "tournament_players": t_players,
+                    "tournament_rounds": total_rounds,
+                    "tournament_players": total_players,
                     "win_criteria": v_win_criteria.get(),
-                    "win_criteria_target": w_target,
-                    "gauntlet_start_difficulty": g_start,
+                    "win_criteria_target": win_target,
+                    "gauntlet_start_difficulty": gaunt_start_diff,
                 }
             )
 
@@ -7090,14 +7088,14 @@ class PokerPlayer:
         self.fold_to_raise = record["fold_to_raise"]
         self.call_when_weak = record["call_when_weak"]
 
-        self.stats = {
+        self.statistics = {
             "rounds_played": record["rounds_played"],
             "avg_bet_size": record["avg_bet_size"],
         }
 
         stored_range = record["player_range"]
 
-        if self.stats["rounds_played"] <= EXPERIENCE_THRESHOLD:
+        if self.statistics["rounds_played"] <= EXPERIENCE_THRESHOLD:
             # Inexperienced: use a default range for gameplay but retain
             # the stored range so it is updated correctly in the database.
             self.base_range = generate_range_chart()
@@ -7134,7 +7132,7 @@ class PokerPlayer:
 
         self.base_range = generate_bot_range(self.vpip, self.difficulty)
 
-        self.stats = {
+        self.statistics = {
             "rounds_played": 0,
             "avg_bet_size": 0,
         }
@@ -7206,7 +7204,7 @@ class PokerPlayer:
         self.fold_to_raise = record["fold_to_raise"]
         self.call_when_weak = record["call_when_weak"]
 
-        self.stats.update(
+        self.statistics.update(
             {
                 "rounds_played": record["rounds_played"],
                 "avg_bet_size": record["avg_bet_size"],
@@ -7249,7 +7247,7 @@ class PokerPlayer:
             "aggression_factor": self.aggression_factor,
             "fold_to_raise": self.fold_to_raise,
             "call_when_weak": self.call_when_weak,
-            "rounds_played": self.stats["rounds_played"],
+            "rounds_played": self.statistics["rounds_played"],
         }
 
     def __repr__(self):
@@ -7265,7 +7263,7 @@ class PokerPlayer:
         return (
             f"PokerPlayer(user_id={self.user_id}, "
             f"VPIP={self.vpip:.1f}%, PFR={self.pfr:.1f}%, "
-            f"Rounds Played={self.stats['rounds_played']})"
+            f"Rounds Played={self.statistics['rounds_played']})"
         )
 
 
@@ -7521,8 +7519,8 @@ def describe_hand(player_hand, community_cards):
     dm = CasinoDeckManager(game_mode="poker")
     try:
         return str(dm.evaluate_hand(player_hand, community_cards))
-    except Exception as exc:
-        print(exc)
+    except Exception as exception:
+        print(exception)
         return "Unknown"
 
 
@@ -7539,10 +7537,10 @@ def build_rank_index(available):
     Returns:
         dict: Mapping of rank character to list of card strings.
     """
-    idx = {}
-    for c in available:
-        idx.setdefault(c[0], []).append(c)
-    return idx
+    index = {}
+    for card in available:
+        index.setdefault(card[0], []).append(card)
+    return index
 
 
 def hand_equity(player_hand, community_cards, opponent_range, bot=None):
@@ -7582,8 +7580,8 @@ def hand_equity(player_hand, community_cards, opponent_range, bot=None):
     player = [dm_base.str_to_treys(c) for c in player_hand]
     board_known = [dm_base.str_to_treys(c) for c in community_cards]
 
-    for c in player + board_known:
-        dm_base.remove_card(c)
+    for card in player + board_known:
+        dm_base.remove_card(card)
 
     valid_hands = [(h, p) for h, p in opponent_range.items() if p > 0]
     if not valid_hands:
@@ -8597,9 +8595,9 @@ class HarrogateHoldEm:
                 player_model = PokerPlayer(
                     user_id=self.user_data["user_id"], is_bot=False
                 )
-            except Exception as exc:
+            except Exception as exception:
                 messagebox.showerror(
-                    "Error", f"Failed to initialise player model: {exc}"
+                    "Error", f"Failed to initialise player model: {exception}"
                 )
                 player_model = None
 
@@ -8638,8 +8636,8 @@ class HarrogateHoldEm:
             )
 
         random.shuffle(self.players)
-        for pos, player in enumerate(self.players, start=1):
-            player["position"] = pos
+        for position, player in enumerate(self.players, start=1):
+            player["position"] = position
 
         self.player_count = len(self.players)
         self.player_go = None
@@ -8861,7 +8859,7 @@ class HarrogateHoldEm:
             "Current Bet: £0",
             f"Blinds: £{self.small_blind_value} / £{self.big_blind_value}",
         ):
-            lbl = Label(
+            label = Label(
                 top_right,
                 text=text,
                 font=self.styles["text"],
@@ -8869,8 +8867,8 @@ class HarrogateHoldEm:
                 fg=cs["text_fg"],
                 anchor="w",
             )
-            lbl.pack(anchor="w", pady=5, padx=5)
-            labels.append(lbl)
+            label.pack(anchor="w", pady=5, padx=5)
+            labels.append(label)
 
         self.balance_label = cast(Label, labels[1])
         self.current_bet_label = cast(Label, labels[2])
@@ -9235,10 +9233,10 @@ class HarrogateHoldEm:
                 text=f"The Board:  {' '.join(str(c) for c in self.flop[1])}  |?|  |?|"
             )
         elif self.street == "turn":
-            flop_c = self.flop[1] if isinstance(self.flop, list) else []
-            turn_c = self.turn[1] if isinstance(self.turn, list) else []
+            flop_cards = self.flop[1] if isinstance(self.flop, list) else []
+            turn_cards = self.turn[1] if isinstance(self.turn, list) else []
             self.board_label.config(
-                text=f"The Board:  {' '.join(str(c) for c in flop_c + turn_c)}  |?|"
+                text=f"The Board:  {' '.join(str(card) for card in flop_cards + turn_cards)}  |?|"
             )
         elif self.street in ("river", "showdown"):
             self.board_label.config(
@@ -9393,54 +9391,54 @@ class HarrogateHoldEm:
         Args:
             frame: The parent widget used to position the Toplevel.
         """
-        bal_win = Toplevel(frame)
-        bal_win.title("Set Starting Balance")
-        bal_win.grab_set()
-        bal_win.protocol("WM_DELETE_WINDOW", lambda: None)
-        bal_win.configure(bg=self.colour_scheme["top_left_bg"])
+        balance_window = Toplevel(frame)
+        balance_window.title("Set Starting Balance")
+        balance_window.grab_set()
+        balance_window.protocol("WM_DELETE_WINDOW", lambda: None)
+        balance_window.configure(bg=self.colour_scheme["top_left_bg"])
 
         Label(
-            bal_win,
+            balance_window,
             text="Enter starting balance (£):",
             font=self.styles["text"],
             bg=self.colour_scheme["top_left_bg"],
             fg=self.colour_scheme["text_fg"],
         ).pack(pady=8)
 
-        bal_entry = Entry(
-            bal_win,
+        balance_entry = Entry(
+            balance_window,
             width=20,
             font=self.styles["text"],
             bg=self.colour_scheme["widget_bg"],
             fg=self.colour_scheme["text_fg"],
             insertbackground=self.colour_scheme["text_fg"],
         )
-        bal_entry.pack(pady=5)
+        balance_entry.pack(pady=5)
 
-        err_lbl = Label(
-            bal_win,
+        error_label = Label(
+            balance_window,
             text="",
             font=self.styles["emphasis"],
             fg="#e08080",
             bg=self.colour_scheme["top_left_bg"],
         )
-        err_lbl.pack(pady=4)
+        error_label.pack(pady=4)
 
         def submit_balance():
             """Validates the entry, updates the UI and database, and closes
             the dialog. Shows an inline error on invalid input."""
             try:
-                balance = int(bal_entry.get().strip())
+                balance = int(balance_entry.get().strip())
                 if balance < 0:
                     raise ValueError()
                 self.balance_label.config(text=f"Balance: £{balance}")
-                bal_win.destroy()
+                balance_window.destroy()
                 self.dbm.modify_user_balance(self.user_data["username"], balance)
             except Exception:
-                err_lbl.config(text="Please enter a valid positive integer.")
+                error_label.config(text="Please enter a valid positive integer.")
 
         Button(
-            bal_win,
+            balance_window,
             text="Submit",
             font=self.styles["button"],
             bg=self.colour_scheme["widget_bg"],
@@ -9737,25 +9735,25 @@ class HarrogateHoldEm:
 
         # Small blind: first active player after dealer
         for attempt in range(self.player_count):
-            idx = (self.initial_position + 1 + attempt) % self.player_count
-            if self.players[idx]["status"] != "OUT":
-                self.small_blind_position = idx
-                self.small_blind_player = self.players[idx]
+            index = (self.initial_position + 1 + attempt) % self.player_count
+            if self.players[index]["status"] != "OUT":
+                self.small_blind_position = index
+                self.small_blind_player = self.players[index]
                 break
 
         # Big blind: first active player after small blind
         for attempt in range(self.player_count):
-            idx = (self.small_blind_position + 1 + attempt) % self.player_count
-            if self.players[idx]["status"] != "OUT":
-                self.big_blind_position = idx
-                self.big_blind_player = self.players[idx]
+            index = (self.small_blind_position + 1 + attempt) % self.player_count
+            if self.players[index]["status"] != "OUT":
+                self.big_blind_position = index
+                self.big_blind_player = self.players[index]
                 break
 
         # Action starts: first active player after big blind
         for attempt in range(self.player_count):
-            idx = (self.big_blind_position + 1 + attempt) % self.player_count
-            if self.players[idx]["status"] != "OUT":
-                self.current_position = idx
+            index = (self.big_blind_position + 1 + attempt) % self.player_count
+            if self.players[index]["status"] != "OUT":
+                self.current_position = index
                 break
 
         self.action_position = self.current_position
@@ -9937,8 +9935,8 @@ class HarrogateHoldEm:
             if remaining > 0:
                 time.sleep(remaining / 1000.0)
             self.bot_decision_queue.put((player, decision, None))
-        except Exception as exc:
-            self.bot_decision_queue.put((player, None, exc))
+        except Exception as exception:
+            self.bot_decision_queue.put((player, None, exception))
 
     def check_bot_decision_queue(self):
         """
@@ -10112,8 +10110,8 @@ class HarrogateHoldEm:
         Args:
             except_player (dict): The player who made the raise.
         """
-        raiser_pos = except_player["position"] - 1
-        self.action_position = (raiser_pos + 1) % self.player_count
+        raiser_position = except_player["position"] - 1
+        self.action_position = (raiser_position + 1) % self.player_count
         for player in self.players:
             if player is except_player:
                 continue
@@ -10179,9 +10177,9 @@ class HarrogateHoldEm:
                     player["bet"] = 0
 
             for attempt in range(self.player_count):
-                idx = (self.initial_position + 1 + attempt) % self.player_count
-                if self.players[idx]["status"] != "OUT":
-                    self.current_position = idx
+                index = (self.initial_position + 1 + attempt) % self.player_count
+                if self.players[index]["status"] != "OUT":
+                    self.current_position = index
                     break
             self.action_position = self.current_position
 
@@ -10268,8 +10266,8 @@ class HarrogateHoldEm:
                     f"{player['player']}:  "
                     f"{' '.join(player['cards'][1])}  —  {hand_name}"
                 )
-            except Exception as exc:
-                self.log_message(f"Error evaluating {player['player']}'s hand: {exc}")
+            except Exception as exception:
+                self.log_message(f"Error evaluating {player['player']}'s hand: {exception}")
 
         if not player_hands:
             self.log_message("Error: could not evaluate any hands.")
