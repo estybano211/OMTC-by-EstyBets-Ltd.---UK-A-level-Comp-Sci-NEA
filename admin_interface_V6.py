@@ -9,15 +9,11 @@ class Admin_Interface:
     Automatically creates the database if it does not already exist.
     """
 
-    def __init__(self, signed_in=False):
+    def __init__(self):
         """
         Initialises the Admin Interface window and navigates to either the
         password check or the main admin menu depending on whether the
         administrator is already authenticated.
-
-        Args:
-            signed_in (bool): If True, skips the password check and goes
-                              directly to the admin interface. Defaults to False.
         """
         self.interface_root = Tk()
 
@@ -37,11 +33,6 @@ class Admin_Interface:
         self.main_frame.pack(expand=True, fill="both", padx=20, pady=20)
 
         self.current_section_frame = None
-
-        if not signed_in:
-            set_view(self, self.administrative_check)
-        else:
-            set_view(self, self.interface_init)
 
         self.interface_root.mainloop()
 

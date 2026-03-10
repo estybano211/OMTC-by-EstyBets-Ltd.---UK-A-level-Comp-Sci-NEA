@@ -1,5 +1,6 @@
 from tkinter import (
     Tk,
+    Checkbutton,
     Label,
     Button,
     Frame,
@@ -103,7 +104,6 @@ class Casino_Interface:
         self.dbm = DatabaseManagement()
 
         self.styles = fetch_font_settings(self.interface_root)
-        self.signed_in = False
 
         if user_data is not None:
             self.user_data = user_data
@@ -118,7 +118,6 @@ class Casino_Interface:
             self.user_data["user_id"] = 0
             self.user_data["username"] = "Administrator"
             self.user_data["administrator"] = True
-            self.signed_in = True
 
         self.main_frame = Frame(self.interface_root)
         self.main_frame.pack(expand=True, fill="both", padx=20, pady=20)
@@ -652,166 +651,16 @@ class Casino_Interface:
 
     def game_settings(self, frame):
         """
-        Displays the Harrogate Hold 'Em Setting Modifier panel.
-
+        Displays the Harrogate Hold 'Em settings panel.
         Requires an account to be linked; redirects if not.
-
-        Sections
-        --
-        1. Table Settings — bot count, balances, blinds
-        2. Bot Difficulty — global slider
-        3. Tournament Mode — gated behind TOURNAMENT_MIN_ROUNDS
-        4. Gauntlet Mode — styled card with ramp preview and launch button
-        5. Endless Mode — styled card with high-score and launch button
-        6. Notes — reference information
-
-        Args:
-            frame (Frame): The parent frame to build the view into.
         """
         if not self.require_linked("Game Settings"):
             set_view(self, self.casino_menu)
             return
 
-        Label(
-            frame,
-            text="Game Settings",
-            font=self.styles["heading"],
-        ).pack(pady=(10, 2))
-
-        Label(
-            frame,
-            text="Configure Harrogate Hold 'Em, Tournament, Gauntlet, and Endless modes.",
-            font=self.styles["emphasis"],
-        ).pack(pady=(0, 8))
-
-        # Scrollable content area
-        from tkinter import Canvas, Scrollbar
-
-        container = Frame(frame)
-        container.pack(expand=True, fill="both")
-
-        canvas = Canvas(container, highlightthickness=0)
-        scrollbar = Scrollbar(container, orient="vertical", command=canvas.yview)
-        canvas.configure(yscrollcommand=scrollbar.set)
-        scrollbar.pack(side="right", fill="y")
-        canvas.pack(side="left", fill="both", expand=True)
-
-        inner = Frame(canvas)
-        win_id = canvas.create_window((0, 0), window=inner, anchor="nw")
-
-        inner.bind(
-            "<Configure>",
-            lambda e: canvas.configure(scrollregion=canvas.bbox("all")),
+        Label(frame, text="Game Settings", font=self.styles["heading"]).pack(
+            pady=(10, 4)
         )
-        canvas.bind(
-            "<Configure>",
-            lambda e: canvas.itemconfig(win_id, width=e.width),
-        )
-
-        # Layout helpers
-
-        def section_label(text, colour="#555555"):
-            """Displays a coloured section header with a divider line."""
-            Label(
-                inner,
-                text=text,
-                font=self.styles["subheading"],
-                anchor="w",
-                pady=5,
-            ).pack(fill="x", padx=20, pady=(14, 0))
-            Frame(inner, height=2, bg=colour).pack(fill="x", padx=20, pady=(0, 4))
-
-        def row(label_text, widget_factory):
-            """Creates a label + widget pair on a single row."""
-            r = Frame(inner)
-            r.pack(fill="x", padx=20, pady=3)
-            Label(
-                r,
-                text=label_text,
-                font=self.styles["text"],
-                width=30,
-                anchor="w",
-            ).pack(side="left")
-            w = widget_factory(r)
-            w.pack(side="left", padx=10)
-            return w
-
-        def mode_card(
-            parent,
-            bg_colour,
-            border_colour,
-            title_text,
-            title_fg,
-            body_widgets_fn,
-            launch_text=None,
-            launch_command=None,
-        ):
-            """
-            Displays a styled card with a coloured banner and content area.
-
-            An optional launch button may be appended if 'launch_text' is
-            provided; this keeps the helper useful for both game modes and the
-            regular settings sections.
-
-            Args:
-                parent: Parent widget.
-                bg_colour: Card background colour.
-                border_colour: Left-border accent colour.
-                title_text: Text shown in the banner.
-                title_fg: Banner text colour.
-                body_widgets_fn: Callable(inner_frame) that adds widgets to the
-                                 card body.
-                launch_text (str, optional): Label for the launch button.
-                launch_command (callable, optional): Callback for the launch
-                                                    button.
-            """
-            # Outer border frame (provides left-side accent bar)
-            outer = Frame(parent, bg=border_colour)
-            outer.pack(fill="x", padx=20, pady=6)
-
-            # Left accent bar
-            Frame(outer, width=6, bg=border_colour).pack(side="left", fill="y")
-
-            # Card body
-            card = Frame(outer, bg=bg_colour)
-            card.pack(side="left", fill="both", expand=True)
-
-            # Banner
-            banner = Frame(card, bg=border_colour)
-            banner.pack(fill="x")
-            Label(
-                banner,
-                text=title_text,
-                font=self.styles["subheading"],
-                bg=border_colour,
-                fg=title_fg,
-                anchor="w",
-                padx=10,
-                pady=6,
-            ).pack(fill="x")
-
-            # Content area
-            body = Frame(card, bg=bg_colour)
-            body.pack(fill="x", padx=12, pady=8)
-            body_widgets_fn(body)
-
-            # Optional launch button row
-            if launch_text and launch_command:
-                button_row = Frame(card, bg=bg_colour)
-                button_row.pack(fill="x", padx=12, pady=(0, 10))
-                Button(
-                    button_row,
-                    text=launch_text,
-                    font=self.styles["button"],
-                    bg=border_colour,
-                    fg=title_fg,
-                    activebackground=bg_colour,
-                    relief="flat",
-                    bd=0,
-                    padx=14,
-                    pady=6,
-                    command=launch_command,
-                ).pack(side="left")
 
         # Live variables
         v_bot_count = IntVar(value=self.settings["bot_count"])
@@ -819,509 +668,257 @@ class Casino_Interface:
         v_small_blind = StringVar(value=str(self.settings["small_blind"]))
         v_big_blind = StringVar(value=str(self.settings["big_blind"]))
         v_bot_diff = IntVar(value=self.settings["bot_difficulty"])
-
         v_tournament = BooleanVar(value=self.settings["tournament_mode"])
-        v_t_rounds = IntVar(value=self.settings["tournament_rounds"])
-        v_t_players = IntVar(value=self.settings["tournament_players"])
+        v_total_rounds = IntVar(value=self.settings["tournament_rounds"])
+        v_total_players = IntVar(value=self.settings["tournament_players"])
         v_win_criteria = StringVar(value=self.settings["win_criteria"])
         v_win_target = StringVar(value=str(self.settings["win_criteria_target"]))
-
         v_gauntlet_diff = IntVar(
             value=self.settings.get(
                 "gauntlet_start_difficulty", GAUNTLET_START_DIFFICULTY
             )
         )
 
-        # Colour‑coded cards for each setting section
+        def label(text):
+            Label(frame, text=text, font=self.styles["subheading"], anchor="w").pack(
+                fill="x", padx=30, pady=(10, 2)
+            )
 
-        # Helpers to build the contents of each card
-        def build_table_body(body):
+        def row(label_text, widget_factory):
+            row = Frame(frame)
+            row.pack(fill="x", padx=30, pady=2)
+            Label(
+                row, text=label_text, font=self.styles["text"], width=32, anchor="w"
+            ).pack(side="left")
+            widget_factory(row).pack(side="left", padx=8)
+
+        # Table Settings
+        label("Table Settings")
+        row(
+            "Number of bots (1–9):",
+            lambda p: Spinbox(
+                p,
+                from_=1,
+                to=9,
+                textvariable=v_bot_count,
+                width=6,
+                font=self.styles["text"],
+            ),
+        )
+        row(
+            "Bot starting balance (£):",
+            lambda p: Entry(
+                p, textvariable=v_bot_balance, width=10, font=self.styles["text"]
+            ),
+        )
+        row(
+            "Small blind (£):",
+            lambda p: Entry(
+                p, textvariable=v_small_blind, width=10, font=self.styles["text"]
+            ),
+        )
+        row(
+            "Big blind (£):",
+            lambda p: Entry(
+                p, textvariable=v_big_blind, width=10, font=self.styles["text"]
+            ),
+        )
+
+        # Bot Difficulty
+        label("Bot Difficulty  (0 = easy, 100 = hard)")
+        difficulty_label = Label(
+            frame,
+            text=f"Current: {v_bot_diff.get()}",
+            font=self.styles["emphasis"],
+            anchor="w",
+        )
+        difficulty_label.pack(fill="x", padx=30)
+        Scale(
+            frame,
+            from_=0,
+            to=100,
+            orient=HORIZONTAL,
+            variable=v_bot_diff,
+            font=self.styles["text"],
+            length=400,
+            command=lambda v: difficulty_label.config(text=f"Current: {int(float(v))}"),
+        ).pack(anchor="w", padx=30, pady=2)
+
+        # Tournament Mode
+        label("Tournament Mode")
+        rounds_played = self.fetch_rounds_played()
+        rounds_needed = max(0, TOURNAMENT_MIN_ROUNDS - rounds_played)
+
+        if rounds_needed > 0:
+            Label(
+                frame,
+                text=(
+                    f"Locked — play {rounds_needed} more round"
+                    f"{'s' if rounds_needed != 1 else ''} to unlock."
+                ),
+                font=self.styles["emphasis"],
+                anchor="w",
+            ).pack(fill="x", padx=30, pady=2)
+            self.settings["tournament_mode"] = False
+            v_tournament.set(False)
+        else:
+            row = Frame(frame)
+            row.pack(fill="x", padx=30, pady=2)
+            Label(
+                row,
+                text="Enable Tournament Mode:",
+                font=self.styles["text"],
+                width=32,
+                anchor="w",
+            ).pack(side="left")
+            Checkbutton(row, variable=v_tournament).pack(side="left")
+
+            Label(
+                frame,
+                text=f"Rounds played: {rounds_played}",
+                font=self.styles["emphasis"],
+                anchor="w",
+            ).pack(fill="x", padx=30, pady=(0, 4))
+
             row(
-                "Number of bots  (1–9):",
+                "Number of rounds:",
                 lambda p: Spinbox(
                     p,
                     from_=1,
-                    to=9,
-                    textvariable=v_bot_count,
+                    to=50,
+                    textvariable=v_total_rounds,
+                    width=6,
+                    font=self.styles["text"],
+                ),
+            )
+            row(
+                "Total players (inc. you):",
+                lambda p: Spinbox(
+                    p,
+                    from_=2,
+                    to=10,
+                    textvariable=v_total_players,
                     width=6,
                     font=self.styles["text"],
                 ),
             )
 
-            row(
-                "Bot starting balance (£):",
-                lambda p: Entry(
-                    p,
-                    textvariable=v_bot_balance,
-                    width=10,
-                    font=self.styles["text"],
-                ),
-            )
-
-            row(
-                "Small blind (£):",
-                lambda p: Entry(
-                    p,
-                    textvariable=v_small_blind,
-                    width=10,
-                    font=self.styles["text"],
-                ),
-            )
-
-            row(
-                "Big blind (£):",
-                lambda p: Entry(
-                    p,
-                    textvariable=v_big_blind,
-                    width=10,
-                    font=self.styles["text"],
-                ),
-            )
-
-        mode_card(
-            inner,
-            bg_colour="#e8f3fa",
-            border_colour="#4a7a9b",
-            title_text="Table Settings",
-            title_fg="#ffffff",
-            body_widgets_fn=build_table_body,
-        )
-
-        def build_botdiff_body(body):
-            diff_frame = Frame(body)
-            diff_frame.pack(fill="x", padx=20, pady=4)
-
+            crit_frame = Frame(frame)
+            crit_frame.pack(fill="x", padx=30, pady=2)
             Label(
-                diff_frame,
-                text="Global bot difficulty  (0 = easy, 100 = hard):",
+                crit_frame,
+                text="Round win criteria:",
                 font=self.styles["text"],
-            ).pack(anchor="w")
-
-            diff_label = Label(
-                diff_frame,
-                text=f"Current: {v_bot_diff.get()}",
-                font=self.styles["emphasis"],
-            )
-            diff_label.pack(anchor="w")
-
-            Scale(
-                diff_frame,
-                from_=0,
-                to=100,
-                orient=HORIZONTAL,
-                variable=v_bot_diff,
-                font=self.styles["text"],
-                length=400,
-                command=lambda val: diff_label.config(
-                    text=f"Current: {int(float(val))}"
-                ),
-            ).pack(anchor="w", pady=4)
-
-        mode_card(
-            inner,
-            bg_colour="#e8f3fa",
-            border_colour="#4a7a9b",
-            title_text="Bot Difficulty  (Standard Mode)",
-            title_fg="#ffffff",
-            body_widgets_fn=build_botdiff_body,
-        )
-
-        def build_tournament_body(body):
-            rounds_played = self.fetch_rounds_played()
-            rounds_needed = max(0, TOURNAMENT_MIN_ROUNDS - rounds_played)
-
-            if rounds_needed > 0:
-                Label(
-                    body,
-                    text=(
-                        f"Tournament Mode is locked.\n\n"
-                        f"You have played {rounds_played} round"
-                        f"{'s' if rounds_played != 1 else ''}.  "
-                        f"Play {rounds_needed} more round"
-                        f"{'s' if rounds_needed != 1 else ''} of Harrogate Hold 'Em "
-                        f"to unlock Tournament Mode.\n\n"
-                        f"This ensures your hand-range statistics are meaningful "
-                        f"enough to support a fair tournament experience."
-                    ),
-                    font=self.styles["emphasis"],
-                    anchor="w",
-                    justify="left",
-                    wraplength=500,
-                ).pack(fill="x", padx=20, pady=8)
-
-                self.settings["tournament_mode"] = False
-                v_tournament.set(False)
-
-            else:
-                t_toggle_frame = Frame(body)
-                t_toggle_frame.pack(fill="x", padx=20, pady=4)
-
-                Label(
-                    t_toggle_frame,
-                    text="Enable Tournament Mode:",
-                    font=self.styles["text"],
-                    width=30,
-                    anchor="w",
-                ).pack(side="left")
-
-                from tkinter import Checkbutton as CBN
-
-                CBN(
-                    t_toggle_frame,
-                    variable=v_tournament,
-                    font=self.styles["text"],
-                ).pack(side="left")
-
-                Label(
-                    body,
-                    text=f"Rounds played: {rounds_played}.",
-                    font=self.styles["emphasis"],
-                    anchor="w",
-                ).pack(fill="x", padx=20, pady=(0, 4))
-
-                section_label(
-                    "Tournament Options:",
-                    "#9b7bb8",
-                )
-
-                row(
-                    "Number of rounds:",
-                    lambda p: Spinbox(
-                        p,
-                        from_=1,
-                        to=50,
-                        textvariable=v_t_rounds,
-                        width=6,
-                        font=self.styles["text"],
-                    ),
-                )
-
-                row(
-                    "Total players (inc. you):",
-                    lambda p: Spinbox(
-                        p,
-                        from_=2,
-                        to=10,
-                        textvariable=v_t_players,
-                        width=6,
-                        font=self.styles["text"],
-                    ),
-                )
-
-                crit_frame = Frame(body)
-                crit_frame.pack(fill="x", padx=20, pady=4)
-
-                Label(
-                    crit_frame,
-                    text="Round win criteria:",
-                    font=self.styles["text"],
-                    width=30,
-                    anchor="w",
-                ).pack(side="left")
-
-                crit_box = Combobox(
-                    crit_frame,
-                    textvariable=v_win_criteria,
-                    values=list(TOURNAMENT_WIN_CRITERIA.keys()),
-                    state="readonly",
-                    font=self.styles["text"],
-                    width=20,
-                )
-                crit_box.pack(side="left", padx=10)
-
-                crit_desc = Label(
-                    body,
-                    text=TOURNAMENT_WIN_CRITERIA.get(v_win_criteria.get(), ""),
-                    font=self.styles["emphasis"],
-                    anchor="w",
-                )
-                crit_desc.pack(fill="x", padx=20)
-
-                target_frame = Frame(body)
-                Label(
-                    target_frame,
-                    text="Earn target (£):",
-                    font=self.styles["text"],
-                    width=30,
-                    anchor="w",
-                ).pack(side="left")
-                Entry(
-                    target_frame,
-                    textvariable=v_win_target,
-                    width=12,
-                    font=self.styles["text"],
-                ).pack(side="left", padx=10)
-
-                def on_criteria_change(event=None):
-                    crit_desc.config(
-                        text=TOURNAMENT_WIN_CRITERIA.get(v_win_criteria.get(), "")
-                    )
-                    if v_win_criteria.get() == "earn_target":
-                        target_frame.pack(fill="x", padx=20, pady=4)
-                    else:
-                        target_frame.pack_forget()
-
-                crit_box.bind("<<ComboboxSelected>>", on_criteria_change)
-
-                if v_win_criteria.get() == "earn_target":
-                    target_frame.pack(fill="x", padx=20, pady=4)
-
-        mode_card(
-            inner,
-            bg_colour="#f4e8ff",
-            border_colour="#7b68ee",
-            title_text="Tournament Mode",
-            title_fg="#ffffff",
-            body_widgets_fn=build_tournament_body,
-        )
-
-        # Gauntlet Mode card
-        section_label("Gauntlet Mode", "#b85c38")
-
-        gauntlet_pb, _ = self.fetch_special_scores()
-
-        # Ramp preview
-        def ramp_preview_text(start_diff):
-            """Returns a formatted ramp schedule string for display."""
-            lines = []
-            d = max(0, min(90, start_diff))
-            prev_round = 1
-            for interval in range(9):
-                rnd_start = interval * GAUNTLET_RAMP_INTERVAL + 1
-                rnd_end = rnd_start + GAUNTLET_RAMP_INTERVAL - 1
-                diff_val = min(100, d + interval * GAUNTLET_DIFFICULTY_STEP)
-                if diff_val > 100:
-                    break
-                lines.append(
-                    f"Rounds {rnd_start:>2}–{rnd_end:<2}  →  Difficulty {diff_val}"
-                )
-                if diff_val == 100:
-                    lines.append(
-                        f"Round  {rnd_end + 1}+      →  Difficulty 100  (maximum)"
-                    )
-                    break
-            return "\n".join(lines)
-
-        def build_gauntlet_body(body):
-            """Populates the Gauntlet card body."""
-            Label(
-                body,
-                text=(
-                    f"Face {GAUNTLET_BOT_COUNT} bots in an escalating challenge.\n"
-                    f"Bot difficulty increases by +{GAUNTLET_DIFFICULTY_STEP} "
-                    f"every {GAUNTLET_RAMP_INTERVAL} rounds.  Survive as long as you can."
-                ),
-                font=self.styles["text"],
-                anchor="w",
-                justify="left",
-                bg="#2a1810",
-                fg="#e8c8b0",
-                wraplength=460,
-            ).pack(fill="x", pady=(0, 6))
-
-            # Personal best badge
-            pb_text = (
-                f"🏆  Personal best:  {gauntlet_pb} round"
-                f"{'s' if gauntlet_pb != 1 else ''}"
-                if gauntlet_pb > 0
-                else "No score yet — be the first!"
-            )
-            Label(
-                body,
-                text=pb_text,
-                font=self.styles["emphasis"],
-                anchor="w",
-                bg="#2a1810",
-                fg="#f0a060",
-            ).pack(fill="x", pady=(0, 8))
-
-            # Starting difficulty row
-            diff_row = Frame(body, bg="#2a1810")
-            diff_row.pack(fill="x", pady=(0, 6))
-
-            Label(
-                diff_row,
-                text="Starting difficulty:",
-                font=self.styles["text"],
-                bg="#2a1810",
-                fg="#e8c8b0",
-                width=20,
+                width=32,
                 anchor="w",
             ).pack(side="left")
+            crit_box = Combobox(
+                crit_frame,
+                textvariable=v_win_criteria,
+                values=list(TOURNAMENT_WIN_CRITERIA.keys()),
+                state="readonly",
+                font=self.styles["text"],
+                width=20,
+            )
+            crit_box.pack(side="left", padx=8)
 
-            Spinbox(
-                diff_row,
+            crit_desc = Label(
+                frame,
+                text=TOURNAMENT_WIN_CRITERIA.get(v_win_criteria.get(), ""),
+                font=self.styles["emphasis"],
+                anchor="w",
+            )
+            crit_desc.pack(fill="x", padx=30)
+
+            target_frame = Frame(frame)
+            Label(
+                target_frame,
+                text="Earn target (£):",
+                font=self.styles["text"],
+                width=32,
+                anchor="w",
+            ).pack(side="left")
+            Entry(
+                target_frame,
+                textvariable=v_win_target,
+                width=12,
+                font=self.styles["text"],
+            ).pack(side="left", padx=8)
+
+            def on_criteria_change(event=None):
+                crit_desc.config(
+                    text=TOURNAMENT_WIN_CRITERIA.get(v_win_criteria.get(), "")
+                )
+                if v_win_criteria.get() == "earn_target":
+                    target_frame.pack(fill="x", padx=30, pady=2)
+                else:
+                    target_frame.pack_forget()
+
+            crit_box.bind("<<ComboboxSelected>>", on_criteria_change)
+            if v_win_criteria.get() == "earn_target":
+                target_frame.pack(fill="x", padx=30, pady=2)
+
+        # Gauntlet Mode
+        label("Gauntlet Mode")
+        gauntlet_pb, _ = self.fetch_special_scores()
+        Label(
+            frame,
+            text=(
+                f"Personal best: {gauntlet_pb} round"
+                f"{'s' if gauntlet_pb != 1 else ''}"
+                if gauntlet_pb > 0
+                else "No score yet."
+            ),
+            font=self.styles["emphasis"],
+            anchor="w",
+        ).pack(fill="x", padx=30)
+        row(
+            "Starting difficulty (0–90):",
+            lambda p: Spinbox(
+                p,
                 from_=0,
                 to=90,
                 increment=10,
                 textvariable=v_gauntlet_diff,
-                width=5,
+                width=6,
                 font=self.styles["text"],
-                bg="#3a2010",
-                fg="#e8c8b0",
-                command=lambda: ramp_lbl.config(
-                    text=ramp_preview_text(v_gauntlet_diff.get())
-                ),
-            ).pack(side="left", padx=8)
-
-            Label(
-                diff_row,
-                text="(steps of 10, from 0 to 90)",
-                font=self.styles["emphasis"],
-                bg="#2a1810",
-                fg="#a08060",
-            ).pack(side="left")
-
-            # Live ramp preview
-            Label(
-                body,
-                text="Difficulty ramp preview:",
-                font=self.styles["emphasis"],
-                anchor="w",
-                bg="#2a1810",
-                fg="#c8a070",
-            ).pack(fill="x", pady=(4, 2))
-
-            ramp_lbl = Label(
-                body,
-                text=ramp_preview_text(v_gauntlet_diff.get()),
-                font=self.styles["text"],
-                anchor="w",
-                justify="left",
-                bg="#1e1008",
-                fg="#c8a878",
-                padx=10,
-                pady=6,
-                relief="groove",
-            )
-            ramp_lbl.pack(fill="x")
-
-            # Bind spinbox Entry widget so the preview updates on keystroke too
-            diff_row.winfo_children()[1].bind(
-                "<KeyRelease>",
-                lambda e: ramp_lbl.config(
-                    text=ramp_preview_text(
-                        max(0, min(90, int(v_gauntlet_diff.get() or 0)))
-                    )
-                ),
-            )
-
-        def launch_gauntlet():
-            """Saves starting difficulty and launches Gauntlet Mode."""
-            sd = max(0, min(90, int(v_gauntlet_diff.get())))
-            self.settings["gauntlet_start_difficulty"] = sd
-            self.settings["gauntlet_mode"] = True
-            self.settings["endless_mode"] = False
-            self.start_gauntlet(sd)
-
-        mode_card(
-            inner,
-            bg_colour="#2a1810",
-            border_colour="#b85c38",
-            title_text="⚔  Gauntlet Mode",
-            title_fg="#ffe8d0",
-            body_widgets_fn=build_gauntlet_body,
-            launch_text="⚔  Start Gauntlet",
-            launch_command=launch_gauntlet,
+            ),
         )
+        Button(
+            frame,
+            text="Start Gauntlet",
+            font=self.styles["button"],
+            width=20,
+            command=lambda: self.start_gauntlet(
+                max(0, min(90, int(v_gauntlet_diff.get())))
+            ),
+        ).pack(anchor="w", padx=30, pady=4)
 
-        # Endless Mode card
-        section_label("Endless Mode", "#2e6b4f")
-
+        # Endless Mode
+        label("Endless Mode")
         _, endless_pb = self.fetch_special_scores()
-
-        def build_endless_body(body):
-            """Populates the Endless card body."""
-            Label(
-                body,
-                text=(
-                    f"Face the maximum {ENDLESS_BOT_COUNT} bots simultaneously.\n"
-                    f"Bot difficulties are randomly distributed (0–100) and "
-                    f"reshuffled every round. There is no win condition — "
-                    f"survive as long as possible."
-                ),
-                font=self.styles["text"],
-                anchor="w",
-                justify="left",
-                bg="#0e2018",
-                fg="#a8d8b8",
-                wraplength=460,
-            ).pack(fill="x", pady=(0, 6))
-
-            # High-score badge
-            hs_text = (
-                f"High score:  {endless_pb} round"
+        Label(
+            frame,
+            text=(
+                f"High score: {endless_pb} round"
                 f"{'s' if endless_pb != 1 else ''} survived"
                 if endless_pb > 0
-                else "No score yet — be the first!"
-            )
-            Label(
-                body,
-                text=hs_text,
-                font=self.styles["emphasis"],
-                anchor="w",
-                bg="#0e2018",
-                fg="#60d090",
-            ).pack(fill="x", pady=(0, 6))
-
-            # Stats row
-            stats_frame = Frame(body, bg="#0e2018")
-            stats_frame.pack(fill="x", pady=(0, 4))
-
-            for stat_text in (
-                f"Opponents:  {ENDLESS_BOT_COUNT} bots",
-                "Difficulties:  0–100 random",
-                "Win condition:  none",
-            ):
-                Label(
-                    stats_frame,
-                    text=f"  •  {stat_text}",
-                    font=self.styles["text"],
-                    bg="#0e2018",
-                    fg="#80c898",
-                    anchor="w",
-                ).pack(anchor="w")
-
-        def launch_endless():
-            """Launches Endless Mode."""
-            self.settings["endless_mode"] = True
-            self.settings["gauntlet_mode"] = False
-            self.start_endless()
-
-        mode_card(
-            inner,
-            bg_colour="#0e2018",
-            border_colour="#2e6b4f",
-            title_text="∞  Endless Mode",
-            title_fg="#c0ffdc",
-            body_widgets_fn=build_endless_body,
-            launch_text="∞  Start Endless",
-            launch_command=launch_endless,
-        )
-
-        # Notes
-        section_label("Notes", "#666666")
-
-        Label(
-            inner,
-            text=(
-                "- Standard Mode uses the Table Settings and Bot Difficulty above.\n"
-                "- Blind escalation in Tournament: see win criteria for escalation rules.\n"
-                "- All monetary values must be positive integers.\n"
-                "- Big blind must be ≥ small blind.\n"
-                f"- Tournament Mode requires {TOURNAMENT_MIN_ROUNDS} rounds played to unlock.\n"
-                f"- Gauntlet Mode uses {GAUNTLET_BOT_COUNT} bots; difficulty caps at 100.\n"
-                f"- Endless Mode always uses {ENDLESS_BOT_COUNT} bots with random difficulties.\n"
-                "- Gauntlet and Endless scores are saved to your profile automatically."
+                else "No score yet."
             ),
-            font=self.styles["text"],
-            justify="left",
+            font=self.styles["emphasis"],
             anchor="w",
-        ).pack(fill="x", padx=20, pady=6)
+        ).pack(fill="x", padx=30)
+        Button(
+            frame,
+            text="Start Endless",
+            font=self.styles["button"],
+            width=20,
+            command=self.start_endless,
+        ).pack(anchor="w", padx=30, pady=4)
 
         # Bottom buttons
         button_frame = Frame(frame)
-        button_frame.pack(pady=10)
+        button_frame.pack(pady=12)
 
         def save_settings():
             """Validates and saves Standard and Tournament settings."""
@@ -1361,14 +958,14 @@ class Casino_Interface:
                 diff = self.settings["bot_difficulty"]
 
             try:
-                t_rounds = int(v_t_rounds.get())
+                t_rounds = int(v_total_rounds.get())
                 assert t_rounds >= 1
             except Exception:
                 errors.append("Tournament rounds must be ≥ 1.")
                 t_rounds = self.settings["tournament_rounds"]
 
             try:
-                t_players = int(v_t_players.get())
+                t_players = int(v_total_players.get())
                 assert 2 <= t_players <= 10
             except Exception:
                 errors.append("Tournament players must be between 2 and 10.")
