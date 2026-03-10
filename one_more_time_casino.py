@@ -2508,7 +2508,7 @@ class Admin_Interface:
         """
         Initialises the Admin Interface window and navigates to either the
         password check or the main admin menu depending on whether the
-        administrator is already authenticated.
+    `    administrator is already authenticated.
 
         Args:
             signed_in (bool): If True, skips the password check and goes
@@ -2517,6 +2517,8 @@ class Admin_Interface:
         self.interface_root = Tk()
 
         self.interface_root.title("One More Time Casino - Administrator Interface")
+
+        from database_management_and_logging_V6 import DatabaseManagement, DB_FILE
 
         self.dbm = DatabaseManagement()
         self.DB_FILE = DB_FILE
@@ -2604,6 +2606,7 @@ class Admin_Interface:
         Opens the Admin Console window by instantiating the Admin_Console class
         from admin_console_V6.
         """
+        from admin_console_V6 import Admin_Console
 
         Admin_Console()
 
@@ -2612,6 +2615,7 @@ class Admin_Interface:
         Opens the Casino Interface in administrator mode by instantiating
         Casino_Interface with administrator=True from casino_interface_V6.
         """
+        from casino_interface_V6 import Casino_Interface
 
         Casino_Interface(True)
 
