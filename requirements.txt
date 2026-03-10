@@ -1,0 +1,18 @@
+# One More Time Casino — third-party dependencies
+# Install with: pip install -r requirements.txt
+#
+# Python standard library modules used (no install needed):
+#   sys, os, sqlite3, json, datetime, logging, queue,
+#   threading, typing, tkinter, hashlib, hmac, binascii,
+#   random, itertools
+
+# Poker hand evaluation (Card, Deck, Evaluator)
+treys>=0.1.0
+
+# Hybrid RSA/AES encryption (Crypto.Cipher, Crypto.PublicKey, Crypto.Random)
+# NOTE: the package is called 'pycryptodome' on PyPI but imports as 'Crypto'
+# Do NOT install 'pycrypto' — it is unmaintained and incompatible
+pycryptodome>=3.20.0
+
+# Database table display and data handling
+pandas>=2.0.0
