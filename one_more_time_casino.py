@@ -2,22 +2,22 @@
 # one_less_time_casino.py
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-# This is a compilation of 14 seperate programs:
+# This is a compilation of 15 seperate programs:
 # 1. database_management_and_logging_V6.py ~ lines
 # 2. gui_helpers_V6.py ~ lines
 # 3. search_sort_algorithms_V6.py ~ lines
-# 3. encryption_software_V6.py ~ lines
-# 4. check_systems_V6.py ~ lines
-# 5. admin_interface_V6.py ~ lines
-# 6. admin_console_V6.py ~ lines
-# 7. terms_and_conditions_V6.py ~ lines
-# 8. user_interface_V6.py ~ lines
-# 9. casino_interface_V6.py ~ lines
-# 10. game_rules_V6.py ~ lines
-# 11. deck_management_V6.py ~ lines
-# 12. whitejoe_V6.py ~ lines
-# 13. poker_player_management_V6.py ~ lines
-# 14. harrogate_hold_em_V6.py ~ lines
+# 4. encryption_software_V6.py ~ lines
+# 5. check_systems_V6.py ~ lines
+# 6. admin_interface_V6.py ~ lines
+# 7. admin_console_V6.py ~ lines
+# 8. terms_and_conditions_V6.py ~ lines
+# 9. user_interface_V6.py ~ lines
+# 10. casino_interface_V6.py ~ lines
+# 11. game_rules_V6.py ~ lines
+# 12. deck_management_V6.py ~ lines
+# 13. whitejoe_V6.py ~ lines
+# 14. poker_player_management_V6.py ~ lines
+# 15. harrogate_hold_em_V6.py ~ lines
 
 import sys
 import os
@@ -2044,6 +2044,7 @@ def bubble_sort(array, key, reverse):
             break
     return array
 
+
 def binary_search_by_id(array, target_id):
     """
     Binary search on a list of dictionaries sorted ascending by 'user_id'.
@@ -3961,9 +3962,9 @@ DEFAULT_SETTINGS = {
     # Tournament
     "tournament_mode": False,
     "tournament_rounds": 5,
-    "tournament_players": 4,  # total players including user
+    "tournament_players": 4,  # Total players including user
     "win_criteria": "eliminate_all",
-    "win_criteria_target": 1000,  # used when criteria is "earn_target"
+    "win_criteria_target": 1000,  # Used when criteria is "earn_target"
     # Gauntlet
     "gauntlet_mode": False,
     "gauntlet_start_difficulty": GAUNTLET_START_DIFFICULTY,
@@ -7376,7 +7377,7 @@ def calculate_simulation_count(street, difficulty):
 
 
 def collective_hand_equity(
-    player_hand, community_cards, opponent_ranges, opponent_count, bot=None
+    player_hand, community_cards, opponent_ranges, bot=None
 ):
     """
     Estimates the player's joint equity against multiple opponents by
@@ -7386,7 +7387,6 @@ def collective_hand_equity(
         player_hand (list[str]): The player's two hole cards.
         community_cards (list[str]): Known community cards.
         opponent_ranges (list[dict]): One range chart per opponent.
-        opponent_count (int): Number of active opponents.
         bot (BotCharacteristics or None): Bot simulation parameters.
 
     Returns:
@@ -7682,7 +7682,6 @@ def make_decision(
     community_cards,
     opponent_ranges,
     opponents,
-    opponent_count,
     pot,
     balance,
     to_call,
@@ -7796,7 +7795,6 @@ def make_decision(
         player_hand,
         community_cards,
         opponent_ranges,
-        opponent_count,
         bot,
     )
     equity = apply_noise(equity, bot)
